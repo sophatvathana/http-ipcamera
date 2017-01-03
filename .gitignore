@@ -33,4 +33,4 @@ packages/
 *.*GhostDoc.xml
 *.vcxproj.filters
 *.pro.user*
-Qt/build*
+dist
