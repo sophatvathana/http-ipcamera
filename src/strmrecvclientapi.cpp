@@ -1,3 +1,9 @@
+/*
+* @Author: sophatvathana
+* @Date:   2017-01-12 13:10:45
+* @Last Modified by:   sophatvathana
+* @Last Modified time: 2017-01-12 13:17:02
+*/
 #include <cstring>
 #include "loghandler.h"
 #include "strmrecvclient.h"
@@ -5,6 +11,8 @@
 
 using namespace loghandlerns;
 using namespace strmrecvclientns;
+
+
 
 
 STRMRECVAPI void STRMRECVCALL strmrecvclient_start_log(const char *outputLogFile, const char *errorLogFile)
@@ -121,7 +129,6 @@ STRMRECVAPI int STRMRECVCALL strmrecvclient_start(int clientId, const char *addr
     STRMRECVClientParameters *parameters = new STRMRECVClientParameters;
     parameters->clientId = clientId;
     parameters->address = address;
-
     LOG4CPLUS_DEBUG(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "[CLIENT " << clientId << "] starting " << (asyncCall == 1 ? "asynchronously" : "synchronously") << "...");
 
     if (asyncCall == 1)
@@ -250,23 +257,23 @@ STRMRECVAPI int STRMRECVCALL strmrecvclient_get_state(int clientId)
     return pClient->state;
 }
 
-STRMRECVAPI void * STRMRECVCALL  StrmCreateContext (const char* path){
-    STRMRECVClient * strmrecvclientn = new STRMRECVClient();
-    strmrecvclientn->createContext(path);
-}
+// STRMRECVAPI void * STRMRECVCALL  StrmCreateContext (const char* path){
+//     STRMRECVClient * strmrecvclientn = new STRMRECVClient();
+//     strmrecvclientn->createContext(path);
+// }
 
-STRMRECVAPI void STRMRECVCALL StrmReleaseContext(void* context) {
-    STRMRECVClient * strmrecvclientn = new STRMRECVClient();
-    strmrecvclientn->releaseContext(context);
-}
+// STRMRECVAPI void STRMRECVCALL StrmReleaseContext(void* context) {
+//     STRMRECVClient * strmrecvclientn = new STRMRECVClient();
+//     strmrecvclientn->releaseContext(context);
+// }
 
-STRMRECVAPI unsigned char* STRMRECVCALL StrmReadFrame(void* context, int* bufferLen) {
-    STRMRECVClient * strmrecvclientn =  new STRMRECVClient();
-    return strmrecvclientn->readFrame(context, bufferLen);
+// STRMRECVAPI unsigned char* STRMRECVCALL StrmReadFrame(void* context, int* bufferLen) {
+//     STRMRECVClient * strmrecvclientn =  new STRMRECVClient();
+//     return strmrecvclientn->readFrame(context, bufferLen);
 
-}
+// }
 
-STRMRECVAPI int STRMRECVCALL StrmOpenRtsp(void* context, const char* url){
-    STRMRECVClient * strmrecvclientn = new STRMRECVClient();
-    strmrecvclientn->openRtsp(context, url);
-}
+// STRMRECVAPI int STRMRECVCALL StrmOpenRtsp(void* context, const char* url){
+//     STRMRECVClient * strmrecvclientn = new STRMRECVClient();
+//     strmrecvclientn->openRtsp(context, url);
+// }

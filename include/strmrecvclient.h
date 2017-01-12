@@ -70,7 +70,7 @@ namespace strmrecvclientns {
     {
     private:
         static STRMRECVClient *_instance;
-
+        STRMRECVClient();
         void _logAVError(STRMRECVClientStruct *pClient, int error);
         void _clean(STRMRECVClientStruct *pClient, int stateToSet = STRMRECVCLIENT_STATE_CLEANED);
         int _init(STRMRECVClientStruct *pClient);
@@ -78,7 +78,6 @@ namespace strmrecvclientns {
 
     public:
         STRMRECVClientStruct *clients[STRMRECVCLIENT_MAX_CLIENT_NUM];
-        STRMRECVClient();
         static STRMRECVClient *getInstance();
 
         static void threadLoop(STRMRECVClientParameters *parameters);

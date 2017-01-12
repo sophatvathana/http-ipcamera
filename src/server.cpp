@@ -1,187 +1,237 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+/*
+* @Author: sophatvathana
+* @Date:   2017-01-12 12:52:44
+* @Last Modified by:   sophatvathana
+* @Last Modified time: 2017-01-12 13:20:49
+*/
+#include "server.h"
+#include "parser.h"
+#include "TcpConnection.h"
+#include "log.h"
+#include <thread>
+#include <vector>
+#include <csignal>
+#include <utility>
+#include <random>
+#include <ctime>
+#include <cstring>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <server.h>
-
-#include <sys/time.h>
-#include <arpa/inet.h>
-#include <ctype.h>
-#include <sys/fcntl.h>
-#include <sys/stat.h>
-
-#include "strmrecvclientapi.h"
-
-#define TEST_ADDRESS "rtsp://admin:12345@192.168.0.168/Streaming/Channels/102"
-#define TEST_FRAME_NUM 100000000
-#define TEST_FRAME_PER_LOOP 50
-
-static const char error_handler[1024] = 
-"<html>\n"
-"<b> error code %d cause %s ! </b>"
-"</html>";
-
-int bind(int port, int local)
+namespace SonaHttp 
 {
-	int sl, optval=1;
-	struct sockaddr_in sin;
+namespace 
+{
+using boost::property_tree::read_json;
+using boost::property_tree::ptree;
 
-	if ((sl=socket(PF_INET, SOCK_STREAM, 0))<0) {
-		
-		return -1;
-	}
-
-	memset(&sin, 0, sizeof(struct sockaddr_in));
-	sin.sin_family=AF_INET;
-	sin.sin_port=htons(port);
-	
-	if (local)
-		sin.sin_addr.s_addr=htonl(INADDR_LOOPBACK);
-	else
-		sin.sin_addr.s_addr=htonl(INADDR_ANY);
-
-	setsockopt(sl, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-
-	if (bind(sl, (struct sockaddr *)&sin, sizeof(struct sockaddr_in))==-1) {
-		
-		close(sl);
-		return -1;
-	}
-
-	if (listen(sl, DEF_MAXWEBQUEUE)==-1) {
-		
-		close(sl);
-		return -1;
-	}
-
-	return sl;
+template<typename T>
+T parse_config(const ptree& t, const std::string& key, 
+    std::function<void(std::exception& e, T&)> exception_callback = 
+    [](std::exception& e, T& retval) 
+    {
+        retval = T{};
+    })
+{
+    T ret{};
+    try 
+    {
+        ret = t.get<T>(key);
+    } 
+    catch(std::exception& e) 
+    {
+        exception_callback(e, ret);
+    }
+    return ret;
 }
 
-static int accept(int sl)
+std::string generateId(size_t max_size)
 {
-	int sc;
-	unsigned long i;
-	struct sockaddr_in sin;
-	socklen_t addrlen=sizeof(struct sockaddr_in);
-
-	if ((sc=accept(sl, (struct sockaddr *)&sin, &addrlen))>=0) {
-		int flags = fcntl(sc, F_GETFL, 0);
-		fcntl(sc, F_SETFL, flags | O_NONBLOCK);
-		// i=1;
-		// ioctl(sc, FIONBIO, &i);
-		return sc;
-	}
-	
-	return -1;
+    std::string ret;
+    std::default_random_engine e(time(nullptr));
+    std::uniform_int_distribution<char> c('0', '9');
+    size_t length = e();
+    length %= max_size;
+    for(size_t i = 0; i < length; ++i)
+        ret.push_back(c(e));
+    return ret;
+}    
 }
 
-static struct HttpClient *httpClientTemp(int size)
+class ServerImpl 
 {
-	struct HttpClient *tmpbuffer=mymalloc(sizeof(struct webcam_buffer));
-	tmpbuffer->ref=0;
-	tmpbuffer->ptr=mymalloc(size);
-		
-	return tmpbuffer;
+    friend class Server;
+public:
+    ServerImpl(boost::asio::io_service& service) 
+        : service_(service), signals_(service), tcp_acceptor_(service), 
+        ssl_acceptor_(service)
+    {}
+
+    static boost::asio::io_service& common_service()
+    {
+        static std::unique_ptr<boost::asio::io_service> service_ptr = std::make_unique<boost::asio::io_service>();
+        service_ptr->stop();
+        while(!service_ptr->stopped())
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        service_ptr = std::make_unique<boost::asio::io_service>();
+        return *service_ptr;
+    }
+
+private:
+    boost::asio::io_service& service_;
+    boost::asio::signal_set signals_;
+    boost::asio::ip::tcp::acceptor tcp_acceptor_;
+    boost::asio::ip::tcp::acceptor ssl_acceptor_;
+    static boost::asio::ssl::context ssl_context_;
+    TcpConnectionPtr new_tcp_connection_;
+    //SslConnectionPtr new_ssl_connection_;
+
+    void handleTcpAccept(std::function<void(ConnectionPtr)> request_handler, const boost::system::error_code& ec);
+    void handleSslAccept(std::function<void(ConnectionPtr)> request_handler, const boost::system::error_code& ec);
+};
+    
+//boost::asio::ssl::context ServerImpl::ssl_context_{boost::asio::ssl::context::sslv23};
+
+void ServerImpl::handleTcpAccept(std::function<void(ConnectionPtr)> request_handler, const boost::system::error_code& ec)
+{
+    if(!ec) 
+    {
+        request_handler(new_tcp_connection_);
+        new_tcp_connection_.reset(new TcpConnection(service_));
+        tcp_acceptor_.async_accept(new_tcp_connection_->nativeSocket(),
+            std::bind(&ServerImpl::handleTcpAccept, this, 
+            request_handler, std::placeholders::_1));
+    } 
+    else 
+    {
+        if(ec != boost::asio::error::operation_aborted)
+            Log("ERROR") << ec.message();
+    }
 }
 
+Server::Server(std::istream& config, size_t thread_pool_size)
+    : Server(ServerImpl::common_service(), config, thread_pool_size)
+{
+}
 
-int main() {
-	char http_header[2048] = "HTTP/1.1 200 OK\r\n\n";
-	char http_rtsp[2048] = 
-	"HTTP/1.0 200 OK\r\n"
-			"Server: Sona/0.1\r\n"
-			"Connection: close\r\n"
-			"Max-Age: 0\r\n"
-			"Expires: 0\r\n"
-			"Cache-Control: no-cache, private\r\n"
-			"Pragma: no-cache\r\n"
-			"Content-Type: multipart/x-mixed-replace; boundary=--BoundaryString\r\n\r\n";
+Server::Server(boost::asio::io_service& service, std::istream& config, size_t thread_pool_size)
+    : pimpl_(std::make_unique<ServerImpl>(service)), service_(service),
+    thread_pool_size_(thread_pool_size), thread_pool_(thread_pool_size)
+{
+    pimpl_->signals_.add(SIGINT);
+    pimpl_->signals_.add(SIGTERM);
+#if defined(SIGQUIT)
+    pimpl_->signals_.add(SIGQUIT);
+#endif
 
-	FILE *html_data;
-
-	int server_socket;
-	// server_socket = socket(AF_INET, SOCK_STREAM, 0);
-
-	server_socket = bind(8000, 1);
-
-	int client_socket;
-
-	//html_data =  fopen("index.html", "r");
-	strmrecvclient_start_log("","");
-	strmrecvclient_start(0, TEST_ADDRESS, 1);
-
-	STRMRECVClientData *data = new STRMRECVClientData();
-	while(true){
-		strmrecvclient_log_state(0);
-		data->state = strmrecvclient_get_state(0);
-
-        if (data->state != STRMRECVCLIENT_STATE_LOOPING)
+    do_await_stop();
+    ptree conf;
+    read_json(config, conf);
+    std::string http_port = parse_config<std::string>(conf, "http port",
+        [](std::exception&, std::string&) 
         {
-            if (data->state < STRMRECVCLIENT_STATE_INITIALIZING)
-                strmrecvclient_start(0, TEST_ADDRESS, 1);
-
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-
-            continue;
+            Log("NOTE") << "no http port provide in config, disable http";
         }
-       if (strmrecvclient_wait(0) != 0)
-            continue;
-
-        strmrecvclient_get_data(0, TEST_FRAME_PER_LOOP, 0, data);
-
-        strmrecvclient_resume(0);
-
-        for (int i = 0; i < data->framesRead; i++)
+    );
+    std::string https_port = parse_config<std::string>(conf, "https port",
+        [](std::exception&, std::string&) 
         {
-            if (data->frameSizes[i] < 1024){
-                continue;
+            Log("NOTE") << "no https port provide in config";
+        }
+    );
+    if(http_port != "") 
+    {
+        std::string http_server = parse_config<std::string>(conf, "http server",
+            [](std::exception&, std::string& server) 
+            {
+                server = "0.0.0.0";
             }
-            strcat(http_rtsp,(char * ) &data->frameQueue[i * STRMRECVCLIENT_FRAME_BUFFER_SIZE]);
-		client_socket = accept(server_socket);
-		send(client_socket, http_rtsp, sizeof(http_rtsp), 0);
-            // std::string name = "test";
-            // name += std::to_string(static_cast<long long>(nframe));
-            // name += ".jpg";
-            // std::ofstream(name, std::ios::binary).write((char * ) &data->frameQueue[i * STRMRECVCLIENT_FRAME_BUFFER_SIZE], data->frameSizes[i]);
+        );
+        boost::asio::ip::tcp::resolver resolver(service_);
+        boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve({http_server, http_port});
+        pimpl_->tcp_acceptor_.open(endpoint.protocol());
+        pimpl_->tcp_acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+        pimpl_->tcp_acceptor_.bind(endpoint);
+        pimpl_->tcp_acceptor_.listen();
+        pimpl_->new_tcp_connection_.reset(new TcpConnection(service_));
+    }
 
-            // nframe++;
-        }
-
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-
-	}
-	close(client_socket);
-	strmrecvclient_stop(0);
-	char response_data[1024] = "<html><h1>Hello world</h1></html>";
-	//fgets(response_data, 1024, "<html><h1>Hello world</h1></html>");
-
-	strcat(http_header, response_data);
-
-	
-	strmrecvclient_stop_log();
-	return 0;
+    startAccept();
 }
 
+Server::~Server() {}
 
+void Server::run(size_t thread_number)
+{
+    if(!thread_number)
+        return;
 
+    std::vector<std::thread> threads;
+    for(size_t i = 0; i < thread_number; ++i) 
+    {
+        threads.push_back(std::thread([this] 
+        {
+            service_.run();
+        }));
+    }
+    for(auto&& th : threads)
+        th.join();
+    service_.reset();
+}
 
+void Server::stop()
+{
+    Log("NOTE") << "សូមជំរាបលា";
+    service_.stop();       
+}
 
+void Server::handleRequest(ConnectionPtr conn)
+{
+    assert(conn != nullptr);
+    parseRequest(conn, [=](RequestPtr request) 
+    {
+        if(request) 
+        {
+            if(request->keepAlive()) 
+            {
+                handleRequest(conn);
+            }
+            thread_pool_.wait_to_enqueue([this](std::unique_lock<std::mutex>&) 
+            {
+                if(thread_pool_.size_unlocked() > thread_pool_size_)
+                    Log("WARNING") << "thread pool overload";
+            }, &Server::deliverRequest, this, request);
+        } 
+        else 
+        {
+            conn->stop();
+        }
+    });
+}
 
+void Server::startAccept()
+{
+    if(pimpl_->new_tcp_connection_) 
+    {
+        pimpl_->tcp_acceptor_.async_accept(pimpl_->new_tcp_connection_->nativeSocket(),
+            [this](const boost::system::error_code& ec) 
+            {
+                pimpl_->handleTcpAccept(
+                    std::bind(&Server::handleRequest, this, std::placeholders::_1),
+                    ec
+                );
+            }
+        );
+    }
 
+}    
 
+void Server::do_await_stop()
+{
+    pimpl_->signals_.async_wait([this](boost::system::error_code /*ec*/, int /*signo*/) 
+    {
+        stop();
+    });
+}
 
-
-
-
-
-
-
-
-
-
-
-
+}    /**< namespace SonaHttp */

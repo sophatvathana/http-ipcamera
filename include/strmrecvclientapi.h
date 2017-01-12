@@ -27,6 +27,7 @@ extern "C"
 
     struct _STRMRECVClientData
     {
+        int isRuning;
         int clientId;
         int state;
         int isWaiting;
@@ -58,7 +59,7 @@ extern "C"
 
     STRMRECVAPI int STRMRECVCALL StrmOpenRtsp(void* context, const char* url);
 
-    STRMRECVAPI unsigned char* STRMRECVCALL StrmReadFrame(void* context, int* bufferLen);
+    STRMRECVAPI unsigned char* STRMRECVCALL StrmReadFrame(int handler, const char* url);
     STRMRECVAPI void STRMRECVCALL StrmReleaseContext(void* context) ;
 
 #ifdef __cplusplus

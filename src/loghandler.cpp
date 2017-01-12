@@ -1,3 +1,9 @@
+/*
+* @Author: sophatvathana
+* @Date:   2017-01-12 12:51:29
+* @Last Modified by:   sophatvathana
+* @Last Modified time: 2017-01-12 13:19:58
+*/
 #include "loghandler.h"
 
 namespace loghandlerns {

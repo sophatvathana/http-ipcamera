@@ -1,3 +1,9 @@
+/*
+* @Author: sophatvathana
+* @Date:   2017-01-12 12:52:49
+* @Last Modified by:   sophatvathana
+* @Last Modified time: 2017-01-12 13:20:47
+*/
 #define _GLIBCXX_USE_CXX11_ABI 0
 #include <jni.h>
 #include <strmrecvclientapi.h>
@@ -56,11 +62,19 @@ extern "C" JNIEXPORT jboolean JNICALL Java_kh_com_kshrd_core_RtspStream_openRtsp
 * Signature: (J)[B
 */
 extern "C" JNIEXPORT jbyteArray JNICALL Java_kh_com_kshrd_core_RtspStream_readFrameInternal
-(JNIEnv *env, jobject thisObj, jlong handler) {
+(JNIEnv *env, jobject thisObj, jlong handler, jstring url) {
 	jbyteArray result = NULL;
-	void* context = (void*)handler;
 	int bufferLen = 0;
-	unsigned char* buffer = StrmReadFrame(context, &bufferLen);
+	const char*   szUrl     = NULL;
+	std::string   path;
+
+	szUrl = env->GetStringUTFChars(url, NULL);
+	path  = szUrl;
+
+	void* context = (void*)handler;
+	env->ReleaseStringUTFChars(url, szUrl);
+
+	unsigned char* buffer = StrmReadFrame(0, path.c_str());
 
 	if (buffer && bufferLen > 0) {
 		result = env->NewByteArray(bufferLen);

@@ -1,3 +1,9 @@
+/*
+* @Author: sophatvathana
+* @Date:   2017-01-12 12:58:56
+* @Last Modified by:   sophatvathana
+* @Last Modified time: 2017-01-12 13:20:53
+*/
 #include <string>
 #include <log4cplus/loggingmacros.h>
 #include "loghandler.h"
@@ -13,11 +19,6 @@
 using namespace loghandlerns;
 
 namespace strmrecvclientns {
-
-
-
-
-
 
 #ifndef _WIN32
 #define HMODULE void*
@@ -239,143 +240,126 @@ bool SetFunctions() {
     return rslt;
 }
 
-void* STRMRECVClient::createContext(const char* path) {
-    STRMRECVClientStruct* rslt = NULL;
+// void* STRMRECVClient::createContext(const char* path) {
+//     STRMRECVClientStruct* rslt = NULL;
 
-    do {
-        if (!isSetFunction) {
-            if (!InitializeLibrary(path))
-                break;
+//     do {
+//         if (!isSetFunction) {
+//             if (!InitializeLibrary(path))
+//                 break;
 
-            if (!(isSetFunction = SetFunctions()))
-                break;
-        }
-        if (!isRegister) {
-            av_register_all_func();
-            isRegister = avformat_network_init_func() == 0;
-        }
+//             if (!(isSetFunction = SetFunctions()))
+//                 break;
+//         }
+//         if (!isRegister) {
+//             av_register_all_func();
+//             isRegister = avformat_network_init_func() == 0;
+//         }
 
-        if (isRegister) {
-            rslt = new STRMRECVClientStruct();
+//         if (isRegister) {
+//             rslt = new STRMRECVClientStruct();
 
-            rslt->_pFormatCtx = avformat_alloc_context_func();
-        }
+//             rslt->_pFormatCtx = avformat_alloc_context_func();
+//         }
 
-    } while (false);
+//     } while (false);
 
-    return rslt;
-}
+//     return rslt;
+// }
 
-void STRMRECVClient::releaseContext(void* context) {
-    STRMRECVClientStruct*      ctx  = (STRMRECVClientStruct*)context;
+// void STRMRECVClient::releaseContext(void* context) {
+//     STRMRECVClientStruct*      ctx  = (STRMRECVClientStruct*)context;
 
-    do {
-        if (ctx == NULL)
-            break;
-        if (ctx->address.size() > 0)
-            LogWrite("StrmReleaseContext: %s close", ctx->address.c_str());
+//     do {
+//         if (ctx == NULL)
+//             break;
+//         if (ctx->address.size() > 0)
+//             LogWrite("StrmReleaseContext: %s close", ctx->address.c_str());
 
-        av_packet_unref_func(&(ctx->_packet));
-        if (ctx->_pFormatCtx) {
-            if (ctx->connected)
-                avformat_close_input_func(&(ctx->_pFormatCtx));
+//         av_packet_unref_func(&(ctx->_packet));
+//         if (ctx->_pFormatCtx) {
+//             if (ctx->connected)
+//                 avformat_close_input_func(&(ctx->_pFormatCtx));
 
-            avformat_free_context_func(ctx->_pFormatCtx);
-        }
+//             avformat_free_context_func(ctx->_pFormatCtx);
+//         }
 
-        delete ctx;
-    } while (false);
-}
-
-
-
-unsigned char* STRMRECVClient::readFrame(void* context, int* bufferLen) {
-    STRMRECVClientStruct*      ctx  = (STRMRECVClientStruct*)context;
-    unsigned char*   rslt = 0;
-    ctx->av_frame_read_ticks = clock();
-    while(rslt == 0) {
-        if (ctx == NULL)
-            break;
-
-        av_packet_unref_func(&(ctx->_packet));
-        av_init_packet_func(&(ctx->_packet));
-
-        if (av_read_frame_func(ctx->_pFormatCtx, &(ctx->_packet)) < 0) {
-            LogWrite("StrmReadFrame: %s receive failed", ctx->address.c_str());
-            break;
-        }
-
-        if (ctx->_packet.stream_index == ctx->videoIndex && ctx->_packet.size > 0) {
-            int cpySize = (ctx->buffer.size() < ctx->_packet.size) ? ctx->buffer.size() : ctx->_packet.size;
-            rslt = &(ctx->buffer[0]);
-            memcpy(rslt, ctx->_packet.data, cpySize);
-            *bufferLen = cpySize;
-        }
-    };
-
-    return rslt;
-}
-
-int STRMRECVClient::openRtsp(void* context, const char* url) {
-    STRMRECVClientStruct*      ctx  = (STRMRECVClientStruct*)context;
-    int              rslt = 0;
-    AVDictionary*    opts = 0;
-    do {
-        LogWrite("StrmOpenRtsp: %s open", url);
-        if (ctx == NULL)
-            break;
-
-        av_dict_set_func(&opts, "rtsp_transport", "tcp", 0);
-        if (avformat_open_input_func(&(ctx->_pFormatCtx), url, NULL, &opts) != 0) {
-            LogWrite("StrmOpenRtsp: %s open failed", url);
-            AVERROR(ETIMEDOUT);
-            break;
-        }
-        ctx->connected = true;
-        ctx->address = url;
-        if (avformat_find_stream_info_func(ctx->_pFormatCtx, NULL) < 0) {
-            LogWrite("StrmOpenRtsp: %s receive failed", url);
-            AVERROR(ETIMEDOUT);
-            break;
-        }
-
-        ctx->videoIndex = -1;
-        for (unsigned int i=0; i < ctx->_pFormatCtx->nb_streams; i++) {
-            if (ctx->_pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
-                ctx->videoIndex = i;
-                break;
-            }
-        }
-
-        av_read_play_func(ctx->_pFormatCtx);
-        av_init_packet_func(&(ctx->_packet));
-
-        rslt = (ctx->videoIndex >= 0);
-
-    } while (false);
-
-    if (opts)
-        av_dict_free_func(&opts);
-
-    return rslt;
-}
+//         delete ctx;
+//     } while (false);
+// }
 
 
 
+// unsigned char* STRMRECVClient::readFrame(void* context, int* bufferLen) {
+//     STRMRECVClientStruct*      ctx  = (STRMRECVClientStruct*)context;
+//     unsigned char*   rslt = 0;
+//     ctx->av_frame_read_ticks = clock();
+//     while(rslt == 0) {
+//         if (ctx == NULL)
+//             break;
 
+//         av_packet_unref_func(&(ctx->_packet));
+//         av_init_packet_func(&(ctx->_packet));
 
+//         if (av_read_frame_func(ctx->_pFormatCtx, &(ctx->_packet)) < 0) {
+//             LogWrite("StrmReadFrame: %s receive failed", ctx->address.c_str());
+//             break;
+//         }
 
+//         if (ctx->_packet.stream_index == ctx->videoIndex && ctx->_packet.size > 0) {
+//             int cpySize = (ctx->buffer.size() < ctx->_packet.size) ? ctx->buffer.size() : ctx->_packet.size;
+//             rslt = &(ctx->buffer[0]);
+//             memcpy(rslt, ctx->_packet.data, cpySize);
+//             *bufferLen = cpySize;
+//         }
+//     };
 
+//     return rslt;
+// }
 
+// int STRMRECVClient::openRtsp(void* context, const char* url) {
+//     STRMRECVClientStruct*      ctx  = (STRMRECVClientStruct*)context;
+//     int              rslt = 0;
+//     AVDictionary*    opts = 0;
+//     do {
+//         LogWrite("StrmOpenRtsp: %s open", url);
+//         if (ctx == NULL)
+//             break;
 
+//         av_dict_set_func(&opts, "rtsp_transport", "tcp", 0);
+//         if (avformat_open_input_func(&(ctx->_pFormatCtx), url, NULL, &opts) != 0) {
+//             LogWrite("StrmOpenRtsp: %s open failed", url);
+//             AVERROR(ETIMEDOUT);
+//             break;
+//         }
+//         ctx->connected = true;
+//         ctx->address = url;
+//         if (avformat_find_stream_info_func(ctx->_pFormatCtx, NULL) < 0) {
+//             LogWrite("StrmOpenRtsp: %s receive failed", url);
+//             AVERROR(ETIMEDOUT);
+//             break;
+//         }
 
+//         ctx->videoIndex = -1;
+//         for (unsigned int i=0; i < ctx->_pFormatCtx->nb_streams; i++) {
+//             if (ctx->_pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
+//                 ctx->videoIndex = i;
+//                 break;
+//             }
+//         }
 
+//         av_read_play_func(ctx->_pFormatCtx);
+//         av_init_packet_func(&(ctx->_packet));
 
+//         rslt = (ctx->videoIndex >= 0);
 
+//     } while (false);
 
+//     if (opts)
+//         av_dict_free_func(&opts);
 
-
-
+//     return rslt;
+// }
 
 const char *state_to_string(int state)
 {
@@ -539,7 +523,14 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
 
     for (int i = 0; i < (int ) pClient->_pFormatCtx->nb_streams; i++)
     {
-        if (pClient->_pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO && pClient->_pFormatCtx->streams[i]->codec->codec_id == AV_CODEC_ID_MJPEG)
+        if (pClient->_pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO &&
+         pClient->_pFormatCtx->streams[i]->codec->codec_id == AV_CODEC_ID_MJPEG
+         || pClient->_pFormatCtx->streams[i]->codec->codec_id == AV_CODEC_ID_MPEG2VIDEO ||
+          pClient->_pFormatCtx->streams[i]->codec->codec_id == AV_CODEC_ID_MPEG4 ||
+          pClient->_pFormatCtx->streams[i]->codec->codec_id == AV_CODEC_ID_H264 ||
+          pClient->_pFormatCtx->streams[i]->codec->codec_id == AV_CODEC_ID_VC1 || 
+          pClient->_pFormatCtx->streams[i]->codec->codec_id == AV_CODEC_ID_WMV3
+         )
         {
             pClient->_videoStream = i;
             break;
@@ -640,8 +631,8 @@ int STRMRECVClient::_readFrame(STRMRECVClientStruct *pClient)
     pClient->av_frame_read_ticks = clock();
 
     // is this a packet from the video stream?
-    if (av_read_frame(pClient->_pFormatCtx, &pClient->_packet) < 0 )
-        //|| pClient->_packet.stream_index != pClient->_videoStream)
+    if (av_read_frame(pClient->_pFormatCtx, &pClient->_packet) < 0)
+       // || pClient->_packet.stream_index != pClient->_videoStream)
     {
         if (pClient->state == STRMRECVCLIENT_STATE_ABORTING || pClient->state == STRMRECVCLIENT_STATE_STOPPING){
             Logger logger = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER));
