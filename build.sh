@@ -84,7 +84,7 @@ exit 1;
 
 mac_install_NoLib() {
 DYLD_LIBRARY_PATH=/usr/local/lib/
-g++ -std=c++14 -arch x86_64  -g -W -Wall -O2 `pkg-config --cflags opencv` -o $output_mac\
+g++ -std=c++14 -arch x86_64  -g -W -Wall -O2 -o $output_mac\
 	-I$(pwd) \
 	-I./include/ \
 	-I.\
