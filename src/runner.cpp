@@ -28,8 +28,8 @@
 //"rtsp://76.89.206.161/live3.sdp"
 //"rtsp://admin:12345@192.168.0.38/Streaming/Channels/1"
 #define TEST_FRAME_NUM 100000000
-#define TEST_FRAME_PER_LOOP 50
-
+#define TEST_FRAME_PER_LOOP 20
+#define SOCK_PATH "echo_socket"
 using namespace SonaHttp;
 const char HEAD_RESPONSE[] =
 {
@@ -70,18 +70,12 @@ struct HelloWorldHandler : public RequestHandler {
                       while(1){
                             strmrecvclient_log_state(clientId);
                             data->state = strmrecvclient_get_state(clientId);
-                            if(data->state = STRMRECVCLIENT_STATE_ERROR){
-                                char * t = "សូមដាក់ ឲ្យបានត្រឹមត្រូវ";
-                                rep->raw_write(t, strlen(t));
-                                rep->flush();
-                                break;
-                            }
-
+                        
                             if (data->state != STRMRECVCLIENT_STATE_LOOPING){
                                   if (data->state < STRMRECVCLIENT_STATE_INITIALIZING)
                                         strmrecvclient_start(clientId, addr, 1);
 
-                            std::this_thread::sleep_for(std::chrono::milliseconds(180));
+                            std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
                             continue;
                       }
@@ -109,7 +103,7 @@ struct HelloWorldHandler : public RequestHandler {
               fflush(stdout);
               
         }
-         std::this_thread::sleep_for(std::chrono::milliseconds(180));
+         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
          //  rep->flush();
          strmrecvclient_stop(clientId);
@@ -133,6 +127,7 @@ struct HelloWorldHandler : public RequestHandler {
 int
 main(int argc, char *argv[])
 {
+  daemon(0,0);
 	std::stringstream config("{\"http port\":\"8888\"}");
 	Server server(config);
       server.addHandler("/test", new HelloWorldHandler());
