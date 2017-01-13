@@ -95,8 +95,12 @@ void TcpConnection::raw_write(const char * data, int size, std::function<void(co
 {
     printf("This is size of frame: %d\n", size);
     boost::system::error_code ignored_error;
-    boost::asio::write(socket_, boost::asio::buffer(data,size),
+    try{
+        boost::asio::write(socket_, boost::asio::buffer(data,size),
                boost::asio::transfer_all(), ignored_error);
+    }catch(Exception e){
+
+    }
     
 }
 

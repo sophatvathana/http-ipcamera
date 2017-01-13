@@ -127,6 +127,7 @@ struct HelloWorldHandler : public RequestHandler {
 int
 main(int argc, char *argv[])
 {
+  if(argv[0] == "-d")
   daemon(0,0);
 	std::stringstream config("{\"http port\":\"8888\"}");
 	Server server(config);
@@ -136,84 +137,5 @@ main(int argc, char *argv[])
       });
       std::this_thread::sleep_for(std::chrono::seconds(1));
       thread_runner.join();
-/*
-	char response_data[1024];
-
-	char http_header[2048] = "HTTP/1.1 200 OK\r\nContent-type: multipart/x-mixed-replace;boundary=--boundary\r\n\r\n";
-	//strcat(http_header, response_data);
-
-	// create a socket 
-	int server_socket;
-	server_socket = socket(AF_INET, SOCK_STREAM, 0);
-
-	
-	// define the address
-	struct sockaddr_in server_address;
-	server_address.sin_family = AF_INET;
-	server_address.sin_port = htons(8001);
-	server_address.sin_addr.s_addr = INADDR_ANY;
-
-	bind(server_socket, (struct sockaddr *) &server_address, sizeof(server_address));
-      std::thread thread_runner([server_socket]{
-	   listen(server_socket, 5);
-      });
-        std::this_thread::sleep_for(std::chrono::seconds(0));
-       thread_runner.join();
-	int client_socket;
-
-	//while(1) {
-		client_socket = accept(server_socket, NULL, NULL);
-		send(client_socket, HEAD_RESPONSE, sizeof(HEAD_RESPONSE), 0);
-			strmrecvclient_start(0, TEST_ADDRESS, 1);
-       	STRMRECVClientData *data = new STRMRECVClientData();
-        int t = 0;
-        while(1){
-        	strmrecvclient_start_log("","");
-       	strmrecvclient_log_state(0);
-       	data->state = strmrecvclient_get_state(0);
-
-        if (data->state != STRMRECVCLIENT_STATE_LOOPING)
-        {
-            if (data->state < STRMRECVCLIENT_STATE_INITIALIZING)
-                strmrecvclient_start(0, TEST_ADDRESS, 0);
-
-           	 std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-            continue;
-        }
-
-       if (strmrecvclient_wait(0) != 0)
-            continue;
-
-        strmrecvclient_get_data(0, TEST_FRAME_PER_LOOP, 0, data);
-
-        strmrecvclient_resume(0);
-  
-        for (int i = 0; i < data->framesRead; i++)
-        {
-            if (data->frameSizes[i] < 1024){
-                continue;
-            }
-            t++;
-              unsigned char * image =  &data->frameQueue[i * STRMRECVCLIENT_FRAME_BUFFER_SIZE];
-              char buf1[1024];
-              sprintf(buf1,"HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\nCache-Control : no-cache, private\r\nContent-Length : %d\r\n\r\n", data->frameSizes[i]);
-              write(client_socket,buf1,strlen(buf1));
-              fflush(stdout);
-              printf("Written: %d \n",write(client_socket,(char * ) &data->frameQueue[i * STRMRECVCLIENT_FRAME_BUFFER_SIZE],data->frameSizes[i]));
-              fflush(stdout);
-              // std::string name = "test";
-              // name += std::to_string(static_cast<long long>(t));
-              // name += ".jpg";
-             // std::ofstream(name, std::ios::binary).write((char * ) &data->frameQueue[i * STRMRECVCLIENT_FRAME_BUFFER_SIZE], data->frameSizes[i]);
-              send(client_socket, SEPARATOR,sizeof(SEPARATOR), 0);
-        
-         
-        }
-
-        	std::this_thread::sleep_for(std::chrono::milliseconds(180));
-	}
-		close(client_socket);
-    */
     
 }
