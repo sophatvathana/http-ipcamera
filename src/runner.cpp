@@ -68,17 +68,17 @@ struct HelloWorldHandler : public RequestHandler {
                       STRMRECVClientData *data = new STRMRECVClientData();
                       int t = 0;
                       while(1){
-                            strmrecvclient_log_state(clientId);
-                            data->state = strmrecvclient_get_state(clientId);
+                        strmrecvclient_log_state(clientId);
+                        data->state = strmrecvclient_get_state(clientId);
                         
-                            if (data->state != STRMRECVCLIENT_STATE_LOOPING){
-                                  if (data->state < STRMRECVCLIENT_STATE_INITIALIZING)
-                                        strmrecvclient_start(clientId, addr, 1);
+                        if (data->state != STRMRECVCLIENT_STATE_LOOPING){
+                            if (data->state < STRMRECVCLIENT_STATE_INITIALIZING)
+                              strmrecvclient_start(clientId, addr, 1);
 
                             std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
                             continue;
-                      }
+                        }
 
        if (strmrecvclient_wait(clientId) != 0)
             continue;
@@ -128,8 +128,9 @@ int
 main(int argc, char *argv[])
 {
   if(argv[0] == "-d")
-  daemon(0,0);
-	std::stringstream config("{\"http port\":\"8888\"}");
+    daemon(0,0);
+  char* conf = "{\"http port\":\"9000\"}";
+	std::stringstream config(conf);
 	Server server(config);
       server.addHandler("/test", new HelloWorldHandler());
       std::thread thread_runner([&server]{

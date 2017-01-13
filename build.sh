@@ -82,6 +82,46 @@ cp $output_mac $target_dir
 exit 1;
 }
 
+linux_install_NoLib() {
+DYLD_LIBRARY_PATH=/usr/local/lib/
+g++ -std=c++11  -g -W -Wall -O2 -o $output_mac\
+	-I$(pwd) \
+	-I./include/ \
+	-I.\
+	-I./src/ \
+	-I/usr/local/opt/log4cplus/include/ -L/usr/local/opt/log4cplus/lib/ -llog4cplus \
+	-lavcodec -lavformat -lavutil\
+	-I/usr/local/opt/openssl/\
+	-I/usr/local/opt/openssl/include\
+	-L/usr/local/opt/openssl/lib\
+	-lssl -lcrypto -lpthread -lboost_system -lboost_regex\
+	-lstdc++ \
+	-lboost_system\
+	-fPIC \
+	./src/runner.cpp \
+	./src/base64.cpp \
+	./src/loghandler.cpp \
+	./src/strmrecvclient.cpp \
+	./src/strmrecvclientapi.cpp\
+	./src/package.cpp\
+    	./src/connection.cpp \
+    	./src/response.cpp\
+    	./src/request.cpp\
+    	./src/parser.cpp\
+    	./src/ThreadPool.cpp\
+    	./src/server.cpp\
+    	./src/RequestHandler.cpp\
+    	./src/MimeType.cpp\
+       ./src/utils.cpp\
+    	./src/net.cpp\
+    	./src/TcpConnection.cpp\
+    	./src/exception.cpp\
+
+
+cp $output_mac $target_dir
+exit 1;
+}
+
 mac_install_NoLib() {
 DYLD_LIBRARY_PATH=/usr/local/lib/
 g++ -std=c++14 -arch x86_64  -g -W -Wall -O2 -o $output_mac\
@@ -172,9 +212,9 @@ NARGS=-1; while [ "$#" -ne "$NARGS" ]; do NARGS=$#; case $1 in
 	-v|--verbose)   # Enable verbose messages
 		VERBOSE=$(( VERBOSE + 1 )) && shift && echo "#-INFO: VERBOSE=$VERBOSE"; ;;
 	# PAIRS
-	-Li|--linux)   
-		linux_install; ;;
-	-M|--mac)     # Set a thing to a value (DEFAULT: $THING)
+	-Linux|--linux)   
+		linux_install_NoLib; ;;
+	-Mac|--mac)     # Set a thing to a value (DEFAULT: $THING)
 		mac_install_NoLib; ;;
 	*)
 		break;
