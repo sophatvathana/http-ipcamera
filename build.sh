@@ -339,7 +339,7 @@ function program_is_installed {
 
 function iFolderIsExist {
 	local return_=1
-	find $1 -name $2 || { local return_=0; }
+	find $1 $2 || { local return_=0; }
 	echo "$return_"
 }
 
