@@ -19,7 +19,7 @@ output_dep="libstrmrecv.so"
 target_dir=dist/
 #/Users/sophatvathana/Desktop/Project/ipcam/IPCAM-VIDEO-STREAMING-API/native/mac/x86_64/
 target_dir_dep=../lib/dep/
-if [[ $unamestr="Darwin" ]];then
+if [[ $unamestr=="Darwin" ]];then
 	GCC_HOME=/usr/local/opt/
 	else
 		GCC_HOME=/usr/local/include/
