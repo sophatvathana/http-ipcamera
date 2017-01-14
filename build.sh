@@ -22,7 +22,6 @@ target_dir_dep=../lib/dep/
 if [[ $unamestr=="Darwin" ]];then
 	GCC_HOME=/usr/local/opt/
 	elif [[ $unamestr=="Linux" ]]; then
-		#statements
 		GCC_HOME=/usr/local/include/
 fi
 
