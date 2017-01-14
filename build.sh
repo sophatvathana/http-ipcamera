@@ -20,9 +20,9 @@ target_dir=dist/
 #/Users/sophatvathana/Desktop/Project/ipcam/IPCAM-VIDEO-STREAMING-API/native/mac/x86_64/
 target_dir_dep=../lib/dep/
 if [[ $unamestr="Darwin" ]];then
-	GCC_HOME=/usr/local/opt
+	GCC_HOME=/usr/local/opt/
 	else
-		GCC_HOME=/usr/local/opt
+		GCC_HOME=/usr/local/include/
 fi
 
 
@@ -174,8 +174,8 @@ die() { err "EXIT: $1" && [ "$2" ] && [ "$2" -ge 0 ] && exit "$2" || exit 1; }
 
 if [[ $unamestr == "Darwin" ]]; then
 	echo "MacOsx"
-	lopenssl=/usr/local/opt/openssl/
-	llog4cplus=/usr/local/opt/log4cplus/
+	lopenssl=$GCC_HOME"openssl/"
+	llog4cplus=$GCC_HOME"log4cplus/"
 fi
 
 linux_install() {
@@ -215,11 +215,11 @@ g++ -std=c++11  -g -W -Wall -O2 -o $output_mac\
 	-I./include/ \
 	-I.\
 	-I./src/ \
-	-I$llog4cplus+"include"/ -L$llog4cplus+"lib"/ -llog4cplus \
+	-I$llog4cplus"include"/ -L$llog4cplus"lib"/ -llog4cplus \
 	-lavcodec -lavformat -lavutil\
 	-I$lopenssl\
-	-I$lopenssl+"include"\
-	-L$lopenssl+"lib"\
+	-I$lopenssl"include"\
+	-L$lopenssl"lib"\
 	-lssl -lcrypto -lpthread -lboost_system -lboost_regex\
 	-lstdc++ \
 	-lboost_system\
@@ -255,11 +255,11 @@ g++ -std=c++14 -arch x86_64  -g -W -Wall -O2 -o $output_mac\
 	-I./include/ \
 	-I.\
 	-I./src/ \
-	-I$llog4cplus+"include"/ -L$llog4cplus+"lib"/ -llog4cplus \
+	-I$llog4cplus"include"/ -L$llog4cplus"lib"/ -llog4cplus \
 	-lavcodec -lavformat -lavutil\
 	-I$lopenssl\
-	-I$lopenssl+"include"\
-	-L$lopenssl+"lib"\
+	-I$lopenssl"include"\
+	-L$lopenssl"lib"\
 	-lssl -lcrypto -lpthread -lboost_system -lboost_regex\
 	-lstdc++ \
 	-stdlib=libc++\
@@ -339,7 +339,7 @@ function program_is_installed {
 
 function iFolderIsExist {
 	local return_=1
-	find $1 $2 || { local return_=0; }
+	find $1 -name $2 || { local return_=0; }
 	echo "$return_"
 }
 
@@ -379,30 +379,27 @@ if [[ $unamestr == "Darwin" && $(program_is_installed brew) != 1 ]]; then
 	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 
-check_log4cplus(){
-	if [[ $unamestr == "Darwin" && $(iFolderIsExist $os_dir_lib "log4cplus") == 1 ]]; then
+check_log4cplus() {
+	if [[ $(iFolderIsExist $GCC_HOME "log4cplus") == 1 ]]; then
+		if [[ $unamestr == "Darwin" ]]; then
 		echo "Installation Log4cplus"
 		brew install log4cplus
-	fi
-
-	if [[ $unamestr == "" && $(iFolderIsExist $os_dir_lib "log4cplus") == 1 ]]; then
+		else
 		echo "Installation log4cplus"
+		rm -r log4cplus >/dev/null 2>&1
 		git clone https://github.com/log4cplus/log4cplus.git 
 		COMMON_FLAGS="-L/lib/x86_64-linux-gnu/ -L/usr/lib/x86_64-linux-gnu/ -mt=yes -O"
 		./log4cplus/configure --enable-threads=yes \
-		CC=/opt/solarisstudio12.3/bin/cc \
-		CXX=/opt/solarisstudio12.3/bin/CC \
-		CFLAGS="$COMMON_FLAGS" \
-		CXXFLAGS="$COMMON_FLAGS" \
 		LDFLAGS="-lpthread" \
 		make
 		sudo make install
 	fi
+	fi
 }
 check_log4cplus
 
-check_boost(){
-	if [[ $(iFolderIsExist $os_dir_lib "boosts") == 1 ]]; then
+check_boost() {
+	if [[ $(iFolderIsExist $GCC_HOME "boost") == 1 ]]; then
 		echo "Installation boost"
 		install_boost "1.63.0"
 	fi
