@@ -19,10 +19,10 @@ output_dep="libstrmrecv.so"
 target_dir=dist/
 #/Users/sophatvathana/Desktop/Project/ipcam/IPCAM-VIDEO-STREAMING-API/native/mac/x86_64/
 target_dir_dep=../lib/dep/
-if [[ $unamestr=="Darwin" ]];then
+if [[ $unamestr == "Darwin" ]];then
+	echo "work"
 	GCC_HOME=/usr/local/opt/
-	elif [[ $unamestr=="Linux" ]]; then
-		#statements
+	else 
 		GCC_HOME=/usr/local/include/
 fi
 
@@ -381,13 +381,13 @@ if [[ $unamestr == "Darwin" && $(program_is_installed brew) != 1 ]]; then
 fi
 
 check_log4cplus() {
-	if [[ $(iFolderIsExist $GCC_HOME "log4cplus") == 1 ]]; then
+	if [[ $(iFolderIsExist $GCC_HOME "log4cplus") != 1 ]]; then
 		if [[ $unamestr == "Darwin" ]]; then
 		echo "Installation Log4cplus"
 		brew install log4cplus
 		else
 		echo "Installation log4cplus"
-		rm -r log4cplus >/dev/null 2>&1
+		sudo rm -r log4cplus >/dev/null
 		git clone https://github.com/log4cplus/log4cplus.git 
 		COMMON_FLAGS="-L/lib/x86_64-linux-gnu/ -L/usr/lib/x86_64-linux-gnu/ -mt=yes -O"
 		./log4cplus/configure --enable-threads=yes \
