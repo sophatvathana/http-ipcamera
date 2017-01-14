@@ -34,3 +34,4 @@ packages/
 *.vcxproj.filters
 *.pro.user*
 dist
+log4cplus
