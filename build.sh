@@ -39,7 +39,7 @@ fi
 VERSION="$1"
 VERSION_UNDERSCORES="$(echo "$VERSION" | sed 's/\./_/g')"
 TARBALL="boost_${VERSION_UNDERSCORES}.tar.gz"
-DOWNLOAD_URL="http://sourceforge.net/projects/boost/files/boost/${VERSION}/${TARBALL}/download"
+DOWNLOAD_URL="https://sourceforge.net/projects/boost/files/boost/${VERSION}/${TARBALL}"
 
 if [ -z "${GCC_HOME}" ]; then
   echo "[FATAL] \$GCC_HOME is not set"
@@ -137,6 +137,9 @@ EOF
 else
     echo "[INFO] Installation already exists in '$PREFIX'. Skipping..."
 fi
+cd ../../
+sudo cp -r `pwd`/include/boost/ /usr/local/include
+sudo cp -r `pwd`/lib/* /usr/local/lib/
 
 echo "[INFO] Success!"
 
@@ -177,6 +180,10 @@ if [[ $unamestr == "Darwin" ]]; then
 	echo "MacOsx"
 	lopenssl=$GCC_HOME"openssl/"
 	llog4cplus=$GCC_HOME"log4cplus/"
+	else
+	lopenssl=$GCC_HOME"openssl/"
+	llog4cplus=$GCC_HOME"log4cplus/"
+	libdir=/usr/local/lib/
 fi
 
 linux_install() {
@@ -211,12 +218,12 @@ exit 1;
 
 linux_install_NoLib() {
 DYLD_LIBRARY_PATH=/usr/local/lib/
-g++ -std=c++11  -g -W -Wall -O2 -o $output_mac\
+g++ -std=c++14  -g -W -Wall -O2 -o $output_mac\
 	-I$(pwd) \
 	-I./include/ \
 	-I.\
 	-I./src/ \
-	-I$llog4cplus"include"/ -L$llog4cplus"lib"/ -llog4cplus \
+	-I/usr/local/include/log4cplus/ -L/usr/local/lib/ -llog4cplus \
 	-lavcodec -lavformat -lavutil\
 	-I$lopenssl\
 	-I$lopenssl"include"\
@@ -381,7 +388,7 @@ if [[ $unamestr == "Darwin" && $(program_is_installed brew) != 1 ]]; then
 fi
 
 check_log4cplus() {
-	if [[ $(iFolderIsExist $GCC_HOME "log4cplus") != 1 ]]; then
+	if [[ $(iFolderIsExist $GCC_HOME "log4cplus") == 1 ]]; then
 		if [[ $unamestr == "Darwin" ]]; then
 		echo "Installation Log4cplus"
 		brew install log4cplus
@@ -392,12 +399,13 @@ check_log4cplus() {
 		cd log4cplus 
 		wget https://github.com/log4cplus/log4cplus/archive/REL_1_2_0.tar.gz
 		tar -xvzf REL_1_2_0.tar.gz
+		rm REL_1_2_0.tar.gz
+		cd log4cplus-REL_1_2_0/
 		COMMON_FLAGS="-L/lib/x86_64-linux-gnu/ -L/usr/lib/x86_64-linux-gnu/ -mt=yes -O"
-		cd log4cplus/
 		./configure --enable-threads=yes LDFLAGS="-lpthread"
 		make
 		sudo make install
-		cd ../
+		cd ../../
 	fi
 	fi
 }
@@ -405,6 +413,10 @@ check_log4cplus
 
 check_boost() {
 	if [[ $(iFolderIsExist $GCC_HOME "boost") == 1 ]]; then
+		if [[ $unamestr == "Linux" ]]; then
+			sudo apt-get install libbz2-dev    
+			sudo install python-dev
+		fi
 		echo "Installation boost"
 		install_boost "1.63.0"
 	fi
