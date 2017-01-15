@@ -34,5 +34,5 @@ packages/
 *.vcxproj.filters
 *.pro.user*
 dist
-log4cplus
-1_63_0
+log4cplus/
+1_63_0/
