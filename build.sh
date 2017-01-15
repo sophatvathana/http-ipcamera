@@ -390,10 +390,11 @@ check_log4cplus() {
 		sudo rm -r log4cplus >/dev/null
 		git clone https://github.com/log4cplus/log4cplus.git 
 		COMMON_FLAGS="-L/lib/x86_64-linux-gnu/ -L/usr/lib/x86_64-linux-gnu/ -mt=yes -O"
-		./log4cplus/configure --enable-threads=yes \
-		LDFLAGS="-lpthread" \
+		cd log4cplus/
+		./configure --enable-threads=yes LDFLAGS="-lpthread"
 		make
 		sudo make install
+		cd ../
 	fi
 	fi
 }
