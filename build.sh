@@ -388,7 +388,10 @@ check_log4cplus() {
 		else
 		echo "Installation log4cplus"
 		sudo rm -r log4cplus >/dev/null
-		git clone https://github.com/log4cplus/log4cplus.git 
+		mkdir log4cplus
+		cd log4cplus 
+		wget https://github.com/log4cplus/log4cplus/archive/REL_1_2_0.tar.gz
+		tar -xvzf REL_1_2_0.tar.gz
 		COMMON_FLAGS="-L/lib/x86_64-linux-gnu/ -L/usr/lib/x86_64-linux-gnu/ -mt=yes -O"
 		cd log4cplus/
 		./configure --enable-threads=yes LDFLAGS="-lpthread"
