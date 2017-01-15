@@ -142,7 +142,7 @@ sudo cp -r `pwd`/include/boost/ /usr/local/include
 sudo cp -r `pwd`/lib/* /usr/local/lib/
 
 echo "[INFO] Success!"
-
+rm -r $VERSION_UNDERSCORES
 }
 
 on_err() {
