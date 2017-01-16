@@ -161,6 +161,7 @@ STRMRECVAPI int STRMRECVCALL strmrecvclient_resume(int clientId)
 
 STRMRECVAPI int STRMRECVCALL strmrecvclient_stop(int clientId)
 {
+    printf("Stop is working\n");
     if (!check_client(clientId))
         return -1;
 

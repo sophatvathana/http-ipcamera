@@ -50,8 +50,10 @@ const char SEPARATOR[] =
 int  t = false;
 struct HelloWorldHandler : public RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
+          //rep->
           //std::terminate();
             int clientId = std::stoi((char*)SonaHttp::getParam(req->getQueryString(), "id").c_str());
+            strmrecvclient_stop(clientId);
             std::thread thread_stream([req, rep, clientId]{
                 const char * addr = NULL;
                 const std::string rg = "(\\baddr=(((?!&).)*))";
@@ -117,26 +119,35 @@ struct HelloWorldHandler : public RequestHandler {
             return;
           }
         });
+          thread_stream.detach();
           //thread_stream.join();
           strmrecvclient_stop(clientId);
-          thread_stream.detach();
-
+          
+          //std::terminate();
+          // std::TerminateThread(thread_stream, 0); // Dangerous source of errors!
+          // std::CloseHandle(thread_stream);
 	}
 };
-
-int
-main(int argc, char *argv[])
-{
-  if(argv[0] == "-d")
-    daemon(0,0);
+void runner(){
   char* conf = "{\"http port\":\"9000\"}";
-	std::stringstream config(conf);
-	Server server(config);
+  std::stringstream config(conf);
+  Server server(config);
       server.addHandler("/test", new HelloWorldHandler());
-      std::thread thread_runner([&server]{
+      //std::thread thread_runner([&server]{
         server.run(100);
-      });
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-      thread_runner.join();
+      //});
+      //std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      //thread_runner.join();
+}
+
+int main(int argc, char** argv)
+{
+  printf("%s\n", argv[0]);
+  if(argv[0] == "-d"){
+    daemon(0,0);
+    runner();
+  }else{
+    runner();
+  }
     
 }
