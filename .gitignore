@@ -36,3 +36,5 @@ packages/
 dist
 log4cplus/
 ./1_63_0/
+strmrecv
+strmrecv.dSYM
