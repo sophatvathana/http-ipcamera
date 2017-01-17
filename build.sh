@@ -434,7 +434,7 @@ check_boost() {
 				install_boost "1.63.0"
 				else
 			sudo apt-get install libbz2-dev    
-			sudo install python-dev
+			sudo apt-get install python-dev
 			echo "Installation boost"
 			install_boost "1.63.0"
 		fi
