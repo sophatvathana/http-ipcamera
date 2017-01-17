@@ -221,16 +221,16 @@ DYLD_LIBRARY_PATH=/usr/local/lib/
 g++ -std=c++14  -g -W -Wall -O2 -o $output_mac\
 	-I$(pwd) \
 	-I./include/ \
-	-I.\
+	-I/usr/include/ \
 	-I./src/ \
-	-I/usr/local/include/log4cplus/ -L/usr/local/lib/ -llog4cplus \
+	-L/usr/local/lib/\
+	-I/usr/local/include/log4cplus/ -llog4cplus \
 	-lavcodec -lavformat -lavutil\
 	-I$lopenssl\
 	-I$lopenssl"include"\
 	-L$lopenssl"lib"\
-	-lssl -lcrypto -lpthread -lboost_system -lboost_regex\
+	-lpthread -L/usr/lib/x86_64-linux-gnu -L/usr/lib -I/usr/include/boost -lboost_system -lboost_regex\
 	-lstdc++ \
-	-lboost_system\
 	-fPIC \
 	./src/runner.cpp \
 	./src/base64.cpp \
@@ -271,7 +271,6 @@ g++ -std=c++14 -arch x86_64  -g -W -Wall -O2 -o $output_mac\
 	-lssl -lcrypto -lpthread -lboost_system -lboost_regex\
 	-lstdc++ \
 	-stdlib=libc++\
-	-lboost_system\
 	-fPIC \
 	./src/runner.cpp \
 	./src/base64.cpp \
@@ -416,6 +415,7 @@ check_boost() {
 		if [[ $unamestr == "Linux" ]]; then
 			sudo apt-get install libbz2-dev    
 			sudo install python-dev
+			sudo apt-get install libboost-all-dev
 		fi
 		echo "Installation boost"
 		install_boost "1.63.0"

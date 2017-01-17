@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <future>
 #include <thread>
@@ -8,10 +8,10 @@
 #include <condition_variable>
 #include <utility>
 #include <cassert>
+#include <stdlib.h>
 
 namespace SonaHttp 
 {
-
 class ThreadPool 
 {
 private:
@@ -51,7 +51,7 @@ public:
             std::forward<_fCallable>(f), std::forward<_tParams>(args)...);
     }
 
-    size_t size() const;  
+    size_t size() const; 
     size_t size_unlocked() const noexcept
     {
         return tasks.size();
