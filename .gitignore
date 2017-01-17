@@ -35,6 +35,7 @@ packages/
 *.pro.user*
 dist
 log4cplus/
-./1_63_0/
+./1_63_0/*
+1_63_0
 strmrecv
 strmrecv.dSYM
