@@ -4,6 +4,11 @@
 # @Last Modified time: 2017-01-12 13:17:02
 #!/bin/bash -e
 ###############################################################################
+
+# yum install centos-release-scl-rh
+# yum install devtoolset-3-gcc devtoolset-3-gcc-c++
+# scl enable devtoolset-3 bash
+
 unamestr=`uname`
 set -e           
 set -E           
@@ -218,20 +223,23 @@ exit 1;
 
 linux_install_NoLib() {
 DYLD_LIBRARY_PATH=/usr/local/lib/
-g++ -std=c++14  -g -W -Wall -O2 -o $output_mac\
+g++ -std=c++14 -g -W -Wall -O2 -o $output_mac\
 	-I$(pwd) \
 	-I./include/ \
 	-I/usr/include/ \
 	-I./src/ \
 	-L/usr/local/lib/\
 	-I/usr/local/include/log4cplus/ -llog4cplus \
+	-I/usr/local/opt/include/ \
+	-L/usr/local/opt/lib/\
 	-lavcodec -lavformat -lavutil\
 	-I$lopenssl\
 	-I$lopenssl"include"\
 	-L$lopenssl"lib"\
-	-lpthread -L/usr/lib/x86_64-linux-gnu -L/usr/lib -I/usr/include/boost -lboost_system -lboost_regex\
-	-lstdc++ \
+	-lpthread -L/usr/lib/x86_64-linux-gnu -L/usr/lib -I/usr/include/boost -I/usr/local/include/boost -lboost_system -lboost_regex\
+	-lstdc++ -ldl -static-libstdc++\
 	-fPIC \
+	-L/lib64/\
 	./src/runner.cpp \
 	./src/base64.cpp \
 	./src/loghandler.cpp \
@@ -345,8 +353,10 @@ function program_is_installed {
 }
 
 function iFolderIsExist {
-	local return_=1
-	find $1 -name $2 || { local return_=0; }
+	local return_=0
+	if [ -d $1$2 ];then
+		local return_=1; 
+	fi
 	echo "$return_"
 }
 
@@ -387,13 +397,15 @@ if [[ $unamestr == "Darwin" && $(program_is_installed brew) != 1 ]]; then
 fi
 
 check_log4cplus() {
-	if [[ $(iFolderIsExist $GCC_HOME "log4cplus") == 1 ]]; then
+	if [[ $(iFolderIsExist $GCC_HOME "log4cplus") != 1 ]]; then
 		if [[ $unamestr == "Darwin" ]]; then
 		echo "Installation Log4cplus"
 		brew install log4cplus
 		else
 		echo "Installation log4cplus"
-		sudo rm -r log4cplus >/dev/null
+		if [[ $(iFolderIsExist "./" "log4cplus") != 1 ]]; then
+			sudo rm -r log4cplus >/dev/null
+		fi
 		mkdir log4cplus
 		cd log4cplus 
 		wget https://github.com/log4cplus/log4cplus/archive/REL_1_2_0.tar.gz
@@ -409,19 +421,35 @@ check_log4cplus() {
 	fi
 }
 check_log4cplus
-
+OS=$(lsb_release -si)
 check_boost() {
-	if [[ $(iFolderIsExist $GCC_HOME "boost") == 1 ]]; then
+	if [[ $(iFolderIsExist $GCC_HOME "boost") != 1 ]]; then
 		if [[ $unamestr == "Linux" ]]; then
+			if [[ $OS == "CentOS" ]]; then
+				sudo yum install centos-release-scl
+				sudo yum install devtoolset-4
+				sudo yum install python-devel
+				scl enable devtoolset-4 bash
+				echo "Installation boost"
+				install_boost "1.63.0"
+				else
 			sudo apt-get install libbz2-dev    
 			sudo install python-dev
-			sudo apt-get install libboost-all-dev
+			echo "Installation boost"
+			install_boost "1.63.0"
 		fi
-		echo "Installation boost"
-		install_boost "1.63.0"
+		fi
 	fi
 }
 check_boost
+check_ffmpeg() {
+	if [[ $(program_is_installed ffmpeg) != 1 ]]; then
+		 cd ./tools/components
+		 sudo ./install.sh
+		 cd ../../
+	fi
+}
+check_ffmpeg
 #strmrecvclient.cpp istrmrecvclient.cpp logfactory.cpp
 show_help() {
 	awk 'NR>1{print} /^(###|$)/{exit}' "$CMD"
