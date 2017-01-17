@@ -421,10 +421,10 @@ check_log4cplus() {
 	fi
 }
 check_log4cplus
-OS=$(lsb_release -si)
 check_boost() {
 	if [[ $(iFolderIsExist $GCC_HOME "boost") != 1 ]]; then
 		if [[ $unamestr == "Linux" ]]; then
+			OS=$(lsb_release -si)
 			if [[ $OS == "CentOS" ]]; then
 				sudo yum install centos-release-scl
 				sudo yum install devtoolset-4
