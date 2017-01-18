@@ -403,7 +403,7 @@ check_log4cplus() {
 		brew install log4cplus
 		else
 		echo "Installation log4cplus"
-		if [[ $(iFolderIsExist "./" "log4cplus") != 1 ]]; then
+		if [[ $(iFolderIsExist "./" "log4cplus") == 1 ]]; then
 			sudo rm -vrf log4cplus >/dev/null
 		fi
 		mkdir log4cplus
