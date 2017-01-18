@@ -408,7 +408,7 @@ check_log4cplus() {
 		fi
 		mkdir log4cplus
 		cd log4cplus 
-		sh -c "$(wget https://github.com/log4cplus/log4cplus/archive/REL_1_2_0.tar.gz)"
+		wget --no-check-certificate https://github.com/log4cplus/log4cplus/archive/REL_1_2_0.tar.gz
 		tar -xvzf REL_1_2_0.tar.gz
 		rm REL_1_2_0.tar.gz
 		cd log4cplus-REL_1_2_0/
