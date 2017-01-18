@@ -133,17 +133,17 @@ void runner(){
   std::stringstream config(conf);
   Server server(config);
       server.addHandler("/test", new HelloWorldHandler());
-      //std::thread thread_runner([&server]{
+      std::thread thread_runner([&server]{
         server.run(100);
-      //});
-      //std::this_thread::sleep_for(std::chrono::milliseconds(200));
-      //thread_runner.join();
+      });
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      thread_runner.join();
 }
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
   printf("%s\n", argv[0]);
-  if(argv[0] == "-d"){
+  if(argv[0] == 0){
     daemon(0,0);
     runner();
   }else{

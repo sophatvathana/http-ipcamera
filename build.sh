@@ -404,7 +404,7 @@ check_log4cplus() {
 		else
 		echo "Installation log4cplus"
 		if [[ $(iFolderIsExist "./" "log4cplus") != 1 ]]; then
-			sudo rm -r log4cplus >/dev/null
+			sudo rm -vrf log4cplus >/dev/null
 		fi
 		mkdir log4cplus
 		cd log4cplus 

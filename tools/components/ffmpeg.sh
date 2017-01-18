@@ -3,7 +3,7 @@ RED='\033[01;31m'
 RESET='\033[0m'
 INSTALL_SDIR='/usr/src/ffmpegscript'
 INSTALL_DDIR='/usr/local/cpffmpeg'
-te="name=Dag RPM Repository for Red Hat Enterprise Linux
+te="[dag] name=Dag RPM Repository for Red Hat Enterprise Linux
 baseurl=http://apt.sw.be/redhat/el$releasever/en/$basearch/dag
 gpgcheck=1
 enabled=1"
