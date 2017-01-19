@@ -237,7 +237,7 @@ g++ -std=c++14 -g -W -Wall -O2 -o $output_mac\
 	-I$lopenssl"include"\
 	-L$lopenssl"lib"\
 	-lpthread -L/usr/lib/x86_64-linux-gnu \
-	-L/usr/local/lib/ -I/usr/local/include/boost -lboost_system -lboost_regex\
+	-L/usr/local/lib/ -I/usr/local/include/boost -lboost_system -lboost_regex \
 	-lstdc++ -ldl -static-libstdc++\
 	-fPIC \
 	-L/lib64/\
@@ -300,8 +300,8 @@ g++ -std=c++14 -arch x86_64  -g -W -Wall -O2 -o $output_mac\
     	./src/TcpConnection.cpp\
     	./src/exception.cpp\
 
-
 cp $output_mac $target_dir
+LD_LIBRARY_PATH=/usr/local/lib/
 exit 1;
 }
 
@@ -431,6 +431,7 @@ check_boost() {
 				sudo yum install devtoolset-4
 				sudo yum install python-devel
 				scl enable devtoolset-4 bash
+				source scl_source enable devtoolset-4
 				echo "Installation boost"
 				install_boost "1.63.0"
 				else
