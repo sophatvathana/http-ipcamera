@@ -22,7 +22,7 @@ echo "Checking for old source"
    cd ffmpeg/
    ldconfig
    ./configure --prefix=$INSTALL_DDIR --enable-shared --enable-nonfree \
-		--enable-gpl --enable-pthreads  --enable-decoder=liba52 \
+		--enable-gpl --enable-pthreads  --enable-libopencore-amrnb  --enable-decoder=liba52 \
 		--enable-libopencore-amrwb --enable-libmp3lame \
 		--enable-libtheora --enable-libvorbis  --enable-libx264  --enable-libxvid \
 		--extra-cflags=-I/usr/local/cpffmpeg/include/ --extra-ldflags=-L/usr/local/cpffmpeg/lib \
