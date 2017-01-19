@@ -408,10 +408,10 @@ check_log4cplus() {
 		fi
 		mkdir log4cplus
 		cd log4cplus 
-		wget --no-check-certificate https://github.com/log4cplus/log4cplus/archive/REL_1_2_0.tar.gz
-		tar -xvzf REL_1_2_0.tar.gz
-		rm REL_1_2_0.tar.gz
-		cd log4cplus-REL_1_2_0/
+		wget --no-check-certificate https://github.com/log4cplus/log4cplus/archive/REL_1_1_3-RC7.tar.gz
+		tar -xvzf REL_1_1_3-RC7.tar.gz
+		rm REL_1_1_3-RC7.tar.gz
+		cd log4cplus-REL_1_1_3/
 		COMMON_FLAGS="-L/lib/x86_64-linux-gnu/ -L/usr/lib/x86_64-linux-gnu/ -mt=yes -O"
 		./configure --enable-threads=yes LDFLAGS="-lpthread"
 		make

@@ -22,7 +22,17 @@
 #include <sys/time.h>
 #include <strmrecvclientapi.h>
 #include <regex>
+#include <getopt.h>
 
+#define OPT1 "Operation1"
+#define OPT2 "Operation2"
+
+struct global_args_t {
+    const char *program_name;
+    const char *config_file;
+    const char *operation_name;
+    int verbose;
+} _args;
 #define TEST_ADDRESS "rtsp://admin:12345@192.168.0.38/Streaming/Channels/102"
 //"rtsp://76.89.206.161/live3.sdp"
 //"rtsp://76.89.206.161/live3.sdp"
@@ -140,14 +150,82 @@ void runner(){
       thread_runner.join();
 }
 
-int main(int argc, char* argv[])
-{
-  printf("%s\n", argv[0]);
-  if(argv[0] == 0){
-    daemon(0,0);
-    runner();
-  }else{
-    runner();
-  }
+void print_usage(FILE* stream, int exit_code) {
+    fprintf(stream, "Usage: %s -o <operation name> [other options] \n", _args.program_name);
+    fprintf(stream,
+            "  -h  --help               Display usage information.\n"
+            "  -d  --daemon    Run with daemon.\n");
+    exit(exit_code);
+}
+
+void select_option(int argc, char* argv[]) {
+
+    int next_option;
+    const char* const short_options = "ho:c:v";
+    const struct option long_options[] = {
+        { "help", no_argument, NULL, 'h'},
+        { "daemon", required_argument, NULL, 'd'},
+        { NULL, no_argument, NULL, 0}
+    };
+
+    _args.config_file = NULL;
+    _args.operation_name = NULL;
+    _args.verbose = 0;
+    _args.program_name = argv[0];
+
+    do {
+        next_option = getopt_long(argc, argv, short_options, long_options, NULL);
+        switch (next_option) {
+            case 'd':
+                daemon(0,0);
+                runner();
+                _args.config_file = optarg;
+                break;
+            case 'h':
+            case '?':
+                print_usage(stdout, 0);
+            case -1: 
+                break;
+            default: 
+                runner();
+                exit(EXIT_FAILURE);
+        }
+    } while (next_option != -1);
+
+    if (argc < 2 || _args.operation_name == NULL) {
+        print_usage(stdout, 0);
+    }
+
+    // remained arguments
+    if (_args.verbose) {
+        for (int i = optind; i < argc; ++i) {
+            printf("Argument: %s\n", argv[i]);
+        }
+    }
+
+    
+    if(strcmp(_args.operation_name, OPT1) == 0) {
+        printf("operation: %s\n",_args.operation_name);
+    } else if(strcmp(_args.operation_name, OPT2) == 0) {
+        printf("operation: %s\n",_args.operation_name);
+    } else {
+        printf("Unknown operation\n");
+        print_usage(stdout, 0);
+    }
     
 }
+
+int main(int argc, char* argv[]) {
+    select_option(argc, argv);
+}
+// int main(int argc, char* argv[])
+// {
+//   printf("%s\n", argv[0]);
+//   if(argv[0] == 0){
+//     daemon(0,0);
+//     runner();
+//   }else{
+//     runner();
+//   }
+    
+// }
