@@ -236,7 +236,7 @@ g++ -std=c++14 -g -W -Wall -O2 -o $output_mac\
 	-I$lopenssl\
 	-I$lopenssl"include"\
 	-L$lopenssl"lib"\
-	-lpthread -L/usr/lib/x86_64-linux-gnu -L/usr/lib -I/usr/include/boost -I/usr/local/include/boost -lboost_system -lboost_regex\
+	-lpthread -L/usr/lib/x86_64-linux-gnu -L/usr/local/lib/ -I/usr/include/boost -I/usr/local/include/boost -lboost_system -lboost_regex\
 	-lstdc++ -ldl -static-libstdc++\
 	-fPIC \
 	-L/lib64/\
