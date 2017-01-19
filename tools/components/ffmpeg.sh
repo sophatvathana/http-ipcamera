@@ -3,11 +3,11 @@ RED='\033[01;31m'
 RESET='\033[0m'
 INSTALL_SDIR='/usr/src/ffmpegscript'
 INSTALL_DDIR='/usr/local/cpffmpeg'
-te="[dag] name=Dag RPM Repository for Red Hat Enterprise Linux
-baseurl=http://apt.sw.be/redhat/el$releasever/en/$basearch/dag
-gpgcheck=1
-enabled=1"
-sudo echo "$te" > /etc/yum.repos.d/dag.repo
+# # te="[dag] name=Dag RPM Repository for Red Hat Enterprise Linux
+# # baseurl=http://apt.sw.be/redhat/el$releasever/en/$basearch/dag
+# gpgcheck=1
+# enabled=1"
+# sudo echo "$te" > /etc/yum.repos.d/dag.repo
 export cpu=`cat "/proc/cpuinfo" | grep "processor"|wc -l`
 export TMPDIR=$HOME/tmp
 _package='FFMPEG'
