@@ -262,6 +262,7 @@ g++ -std=c++14 -g -W -Wall -O2 -o $output_mac\
 
 
 cp $output_mac $target_dir
+LD_LIBRARY_PATH=/usr/local/lib/
 exit 1;
 }
 

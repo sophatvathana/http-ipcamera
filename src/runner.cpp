@@ -154,7 +154,8 @@ void print_usage(FILE* stream, int exit_code) {
     fprintf(stream, "Usage: %s <operation name> [other options] \n", _args.program_name);
     fprintf(stream,
             "  -h  --help               Display usage information.\n"
-            "  -d  --daemon    Run with daemon.\n");
+            "  -d  --daemon    Run with daemon.\n"
+            "  -a  --debug    Run with debug.\n");
     exit(exit_code);
 }
 
@@ -164,6 +165,7 @@ void select_option(int argc, char* argv[]) {
     const char* const short_options = "ho:c:v";
     const struct option long_options[] = {
         { "help", no_argument, NULL, 'h'},
+        { "debug", no_argument, NULL, 'a'},
         { "daemon", no_argument, NULL, 'd'},
         { NULL, no_argument, NULL, 0}
     };
@@ -176,6 +178,9 @@ void select_option(int argc, char* argv[]) {
     do {
         next_option = getopt_long(argc, argv, short_options, long_options, NULL);
         switch (next_option) {
+            case 'a':
+              runner();
+              break;
             case 'd':
                 daemon(0,0);
                 runner();
@@ -187,7 +192,6 @@ void select_option(int argc, char* argv[]) {
             case -1: 
                 break;
             default: 
-                runner();
                 exit(EXIT_FAILURE);
         }
     } while (next_option != -1);
