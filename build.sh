@@ -232,7 +232,7 @@ g++ -std=c++14 -g -W -Wall -O2 -o $output_mac\
 	-I/usr/local/include/log4cplus/ -llog4cplus \
 	-I/usr/local/opt/include/ \
 	-L/usr/local/opt/lib/\
-	-lavcodec -lavformat -lavutil\
+	-L/usr/local/cpffmpeg/lib/ -I/usr/local/cpffmpeg/include/ -lavcodec -lavformat -lavutil\
 	-I$lopenssl\
 	-I$lopenssl"include"\
 	-L$lopenssl"lib"\
