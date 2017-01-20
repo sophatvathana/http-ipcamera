@@ -11,8 +11,8 @@
 #include <log4cplus/fileappender.h>
 #include <log4cplus/layout.h>
 
-#define DEFAULT_OUTPUT_LOGGER "RTSPClientLibOutput"
-#define DEFAULT_ERROR_LOGGER "RTSPClientLibError"
+#define DEFAULT_OUTPUT_LOGGER "StrmrecvClientOutput"
+#define DEFAULT_ERROR_LOGGER "StrmrecvClientError"
 
 #define DEFAULT_STDOUT_APPENDER DEFAULT_OUTPUT_LOGGER "StdOutAppender"
 #define DEFAULT_OUTPUT_FILE_APPENDER DEFAULT_OUTPUT_LOGGER "OutputFileAppender"
