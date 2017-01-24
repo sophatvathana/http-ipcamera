@@ -23,6 +23,10 @@
 #include <strmrecvclientapi.h>
 #include <regex>
 #include <getopt.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <syslog.h>
 
 #define OPT1 "Operation1"
 #define OPT2 "Operation2"
@@ -33,6 +37,7 @@ struct global_args_t {
     const char *operation_name;
     int verbose;
 } _args;
+
 #define TEST_ADDRESS "rtsp://admin:12345@192.168.0.38/Streaming/Channels/102"
 //"rtsp://76.89.206.161/live3.sdp"
 //"rtsp://76.89.206.161/live3.sdp"
@@ -41,6 +46,14 @@ struct global_args_t {
 #define TEST_FRAME_PER_LOOP 20
 #define SOCK_PATH "echo_socket"
 using namespace SonaHttp;
+
+#define DAEMON_NAME "strmrecv"
+
+void process(){
+    syslog (LOG_NOTICE, "Writing to my Syslog");
+}   
+
+
 const char HEAD_RESPONSE[] =
 {
     "HTTP/1.1 200 OK\r\n" 
@@ -182,8 +195,29 @@ void select_option(int argc, char* argv[]) {
               runner();
               break;
             case 'd':
-                daemon(0,0);
-                runner();
+              setlogmask(LOG_UPTO(LOG_NOTICE));
+              openlog(DAEMON_NAME, LOG_CONS | LOG_NDELAY | LOG_PERROR | LOG_PID, LOG_USER);
+
+              syslog(LOG_INFO, "Running Daemon");
+
+              pid_t pid, sid;
+
+              pid = fork();
+
+              if (pid < 0) { exit(EXIT_FAILURE); }
+
+              if (pid > 0) { exit(EXIT_SUCCESS); }
+              umask(0);
+              sid = setsid();
+              if (sid < 0) { exit(EXIT_FAILURE); }
+
+              if ((chdir("/")) < 0) { exit(EXIT_FAILURE); }
+
+                close(STDIN_FILENO);
+                close(STDOUT_FILENO);
+                close(STDERR_FILENO);
+                    runner();
+                closelog();
                 _args.config_file = optarg;
                 break;
             case 'h':
