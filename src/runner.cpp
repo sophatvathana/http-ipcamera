@@ -156,11 +156,11 @@ void runner(){
   std::stringstream config(conf);
   Server server(config);
       server.addHandler("/test", new HelloWorldHandler());
-      std::thread thread_runner([&server]{
-        server.run(100);
-      });
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
-      thread_runner.join();
+      //std::thread thread_runner([&server]{
+        server.run(1000);
+      //});
+      //std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      //thread_runner.join();
 }
 
 void print_usage(FILE* stream, int exit_code) {
