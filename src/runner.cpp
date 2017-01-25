@@ -155,7 +155,7 @@ void runner(){
   char* conf = "{\"http port\":\"9000\"}";
   std::stringstream config(conf);
   Server server(config);
-      server.addHandler("/test", new HelloWorldHandler());
+        server.addHandler("/test", new HelloWorldHandler());
       //std::thread thread_runner([&server]{
         server.run(1000);
       //});

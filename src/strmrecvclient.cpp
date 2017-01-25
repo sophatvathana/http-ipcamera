@@ -631,8 +631,7 @@ int STRMRECVClient::_readFrame(STRMRECVClientStruct *pClient)
     pClient->av_frame_read_ticks = clock();
 
     // is this a packet from the video stream?
-    if (av_read_frame(pClient->_pFormatCtx, &pClient->_packet) < 0)
-       // || pClient->_packet.stream_index != pClient->_videoStream)
+    if (av_read_frame(pClient->_pFormatCtx, &pClient->_packet) < 0 || pClient->_packet.stream_index != pClient->_videoStream)
     {
         if (pClient->state == STRMRECVCLIENT_STATE_ABORTING || pClient->state == STRMRECVCLIENT_STATE_STOPPING){
             Logger logger = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER));
