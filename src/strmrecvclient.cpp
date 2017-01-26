@@ -481,9 +481,9 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
         LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [TCP] " << pClient->address << "!");
         _logAVError(pClient, ret);
 
-        // this to avoid to try UDP while stopping or aborting
-        if (pClient->state != STRMRECVCLIENT_STATE_INITIALIZING)
-            return -1;
+        // // this to avoid to try UDP while stopping or aborting
+        // if (pClient->state != STRMRECVCLIENT_STATE_INITIALIZING)
+        //     return -1;
 
         // try with UDP
         LOG4CPLUS_TRACE(logger, "[CLIENT " << pClient->clientId << "] avformat_open_input() [UDP]... ");
@@ -495,7 +495,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
             LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
         _logAVError(pClient, ret);
 
-        return -1;
+        //return -1;
     }
     }
 
