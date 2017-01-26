@@ -425,20 +425,20 @@ STRMRECVClient* STRMRECVClient::getInstance()
 
 void STRMRECVClient::_logAVError(STRMRECVClientStruct *pClient, int error)
 {
-    Logger loggerError = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_ERROR_LOGGER));
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER));
-    if (av_strerror(error, pClient->errbuf, STRMRECVCLIENT_ERRBUF_SIZE) == 0)
-    {
-        printf("LibAV error: %s\n",pClient->errbuf );
+    // Logger loggerError = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_ERROR_LOGGER));
+    // Logger logger = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER));
+    // if (av_strerror(error, pClient->errbuf, STRMRECVCLIENT_ERRBUF_SIZE) == 0)
+    // {
+    //     printf("LibAV error: %s\n",pClient->errbuf );
         
-        LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] LibAV error: " << pClient->errbuf);
-        LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] LibAV error: " << pClient->errbuf);
-    }
-    else
-    {
-        LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] LibAV error: Unknown error...");
-        LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] LibAV error: Unknown error...");
-    }
+    //     LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] LibAV error: " << pClient->errbuf);
+    //     LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] LibAV error: " << pClient->errbuf);
+    // }
+    // else
+    // {
+    //     LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] LibAV error: Unknown error...");
+    //     LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] LibAV error: Unknown error...");
+    // }
 }
 
 int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
@@ -493,10 +493,10 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
         {
             LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
             LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
-        _logAVError(pClient, ret);
+            _logAVError(pClient, ret);
 
         //return -1;
-    }
+        }
     }
 
     // find stream info
