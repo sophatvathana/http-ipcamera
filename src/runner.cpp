@@ -43,7 +43,7 @@ struct global_args_t {
 //"rtsp://76.89.206.161/live3.sdp"
 //"rtsp://admin:12345@192.168.0.38/Streaming/Channels/1"
 #define TEST_FRAME_NUM 100000000
-#define TEST_FRAME_PER_LOOP 20//20
+#define TEST_FRAME_PER_LOOP 2//20
 #define SOCK_PATH "echo_socket"
 using namespace SonaHttp;
 
@@ -102,6 +102,11 @@ struct HelloWorldHandler : public RequestHandler {
 
                             std::this_thread::sleep_for(std::chrono::milliseconds(180));
 
+                            continue;
+                        }
+
+                        if (data->state == STRMRECVCLIENT_STATE_ERROR){
+                            strmrecvclient_start(clientId, addr, 1);
                             continue;
                         }
 
