@@ -89,7 +89,7 @@ struct HelloWorldHandler : public RequestHandler {
                       addr = saddr.c_str();
                       rep->write((char *)HEAD_RESPONSE);
                       strmrecvclient_start_log("","");
-                      strmrecvclient_start(clientId, addr, 1);
+                      strmrecvclient_start(clientId, addr, 0);
                       STRMRECVClientData *data = new STRMRECVClientData();
                       int t = 0;
                       while(1){
@@ -98,7 +98,7 @@ struct HelloWorldHandler : public RequestHandler {
                         
                         if (data->state != STRMRECVCLIENT_STATE_LOOPING){
                             if (data->state < STRMRECVCLIENT_STATE_INITIALIZING)
-                              strmrecvclient_start(clientId, addr, 1);
+                              strmrecvclient_start(clientId, addr, 0);
 
                             std::this_thread::sleep_for(std::chrono::milliseconds(180));
 
@@ -108,7 +108,7 @@ struct HelloWorldHandler : public RequestHandler {
        if (strmrecvclient_wait(clientId) != 0)
             continue;
 
-        strmrecvclient_get_data(clientId, TEST_FRAME_PER_LOOP, 1, data);
+        strmrecvclient_get_data(clientId, TEST_FRAME_PER_LOOP, 0, data);
 
         strmrecvclient_resume(clientId);
   
