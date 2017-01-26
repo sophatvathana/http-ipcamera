@@ -76,7 +76,7 @@ struct HelloWorldHandler : public RequestHandler {
           //rep->
           //std::terminate();
             int clientId = std::stoi((char*)SonaHttp::getParam(req->getQueryString(), "id").c_str());
-            strmrecvclient_stop(clientId);
+            //strmrecvclient_stop(clientId);
             std::thread thread_stream([req, rep, clientId]{
                 const char * addr = NULL;
                 const std::string rg = "(\\baddr=(((?!&).)*))";
@@ -89,7 +89,7 @@ struct HelloWorldHandler : public RequestHandler {
                       addr = saddr.c_str();
                       rep->write((char *)HEAD_RESPONSE);
                       strmrecvclient_start_log("","");
-                      strmrecvclient_start(clientId, addr, 0);
+                      strmrecvclient_start(clientId, addr, 1);
                       STRMRECVClientData *data = new STRMRECVClientData();
                       int t = 0;
                       while(1){
@@ -98,7 +98,7 @@ struct HelloWorldHandler : public RequestHandler {
                         
                         if (data->state != STRMRECVCLIENT_STATE_LOOPING){
                             if (data->state < STRMRECVCLIENT_STATE_INITIALIZING)
-                              strmrecvclient_start(clientId, addr, 0);
+                              strmrecvclient_start(clientId, addr, 1);
 
                             std::this_thread::sleep_for(std::chrono::milliseconds(180));
 
@@ -131,10 +131,10 @@ struct HelloWorldHandler : public RequestHandler {
          std::this_thread::sleep_for(std::chrono::milliseconds(180));
     }
          //  rep->flush();
-         strmrecvclient_stop(clientId);
+            strmrecvclient_stop(clientId);
          // strmrecvclient_destroy(clientId);
           delete data;
-         strmrecvclient_stop_log();
+            strmrecvclient_stop_log();
           }else{
               char * t = "សូមដាក់ ឲ្យបានត្រឹមត្រូវ";
               rep->raw_write(t, strlen(t));
@@ -144,7 +144,7 @@ struct HelloWorldHandler : public RequestHandler {
         });
           thread_stream.detach();
           //thread_stream.join();
-          strmrecvclient_stop(clientId);
+          //strmrecvclient_stop(clientId);
           
           //std::terminate();
           // std::TerminateThread(thread_stream, 0); // Dangerous source of errors!
