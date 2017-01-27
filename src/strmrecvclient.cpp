@@ -396,12 +396,12 @@ STRMRECVClient* STRMRECVClient::_instance = NULL;
 static int interrupt_cb(void *pClient)
 {
     // if av_read_frame takes more than timeout then interrupt it
-    if (((STRMRECVClientStruct * ) pClient)->state == STRMRECVCLIENT_STATE_LOOPING
-        && (clock() - ((STRMRECVClientStruct * ) pClient)->av_frame_read_ticks) / CLOCKS_PER_SEC > STRMRECVCLIENT_AV_FRAME_READ_TIMEOUT)
-        return 1;
+    // if (((STRMRECVClientStruct * ) pClient)->state == STRMRECVCLIENT_STATE_LOOPING
+    //     && (clock() - ((STRMRECVClientStruct * ) pClient)->av_frame_read_ticks) / CLOCKS_PER_SEC > STRMRECVCLIENT_AV_FRAME_READ_TIMEOUT)
+    //     return 1;
 
     return ((STRMRECVClientStruct * ) pClient)->state == STRMRECVCLIENT_STATE_ABORTING
-        || ((STRMRECVClientStruct * ) pClient)->state == STRMRECVCLIENT_STATE_STOPPING ? 1 : 0;
+        || ((STRMRECVClientStruct * ) pClient)->state == STRMRECVCLIENT_STATE_STOPPING ? 1 : 1;
 }
 
 static const AVIOInterruptCB int_cb = { interrupt_cb, NULL };
