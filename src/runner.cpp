@@ -221,10 +221,10 @@ void select_option(int argc, char* argv[]) {
                 close(STDIN_FILENO);
                 close(STDOUT_FILENO);
                 close(STDERR_FILENO);
-                while(1){
+                //while(1){
                     runner();
-                    sleep(1);
-                  }
+                  //  sleep(1);
+                  //}
                 closelog();
                 _args.config_file = optarg;
                 break;

@@ -483,8 +483,8 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
         _logAVError(pClient, ret);
 
         // this to avoid to try UDP while stopping or aborting
-        // if (pClient->state != STRMRECVCLIENT_STATE_INITIALIZING)
-        //     return -1;
+        if (pClient->state != STRMRECVCLIENT_STATE_INITIALIZING)
+            return -1;
 
         // try with UDP
         LOG4CPLUS_TRACE(logger, "[CLIENT " << pClient->clientId << "] avformat_open_input() [UDP]... ");
