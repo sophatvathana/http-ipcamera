@@ -484,6 +484,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
 
         // this to avoid to try UDP while stopping or aborting
         if (pClient->state != STRMRECVCLIENT_STATE_INITIALIZING){
+            pClient->state = STRMRECVCLIENT_STATE_INITIALIZING;
             return -1;
         }
 
