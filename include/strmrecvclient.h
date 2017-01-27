@@ -57,10 +57,10 @@ namespace strmrecvclientns {
 
         clock_t av_frame_read_ticks;
 
-        std::vector<unsigned char> buffer;
-    _STRMRECVClientStruct(): _pFormatCtx(0), connected(false) {
-        buffer.resize(1024 * 1024 * 2);
-    }
+        // std::vector<unsigned char> buffer;
+        // _STRMRECVClientStruct(): _pFormatCtx(0), connected(false) {
+        //     buffer.resize(1024 * 1024 * 2);
+        // }
 
     };
 

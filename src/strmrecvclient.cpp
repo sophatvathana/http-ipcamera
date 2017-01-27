@@ -395,13 +395,13 @@ STRMRECVClient* STRMRECVClient::_instance = NULL;
 
 static int interrupt_cb(void *pClient)
 {
-    // if av_read_frame takes more than timeout then interrupt it
-    // if (((STRMRECVClientStruct * ) pClient)->state == STRMRECVCLIENT_STATE_LOOPING
-    //     && (clock() - ((STRMRECVClientStruct * ) pClient)->av_frame_read_ticks) / CLOCKS_PER_SEC > STRMRECVCLIENT_AV_FRAME_READ_TIMEOUT)
-    //     return 1;
+    //if av_read_frame takes more than timeout then interrupt it
+    if (((STRMRECVClientStruct * ) pClient)->state == STRMRECVCLIENT_STATE_LOOPING
+        && (clock() - ((STRMRECVClientStruct * ) pClient)->av_frame_read_ticks) / CLOCKS_PER_SEC > STRMRECVCLIENT_AV_FRAME_READ_TIMEOUT)
+        return 1;
 
     return ((STRMRECVClientStruct * ) pClient)->state == STRMRECVCLIENT_STATE_ABORTING
-        || ((STRMRECVClientStruct * ) pClient)->state == STRMRECVCLIENT_STATE_STOPPING ? 1 : 1;
+        || ((STRMRECVClientStruct * ) pClient)->state == STRMRECVCLIENT_STATE_STOPPING ? 1 : 0;
 }
 
 static const AVIOInterruptCB int_cb = { interrupt_cb, NULL };
@@ -459,6 +459,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
     LOG4CPLUS_DEBUG(logger, "[CLIENT " << pClient->clientId << "] Trying to open address " << pClient->address);
 
     // open rtsp
+    //AVFormatContext* container = NULL;
     pClient->_pFormatCtx = avformat_alloc_context();
     pClient->_pFormatCtx->interrupt_callback = int_cb;
     pClient->_pFormatCtx->interrupt_callback.opaque = pClient;
@@ -479,11 +480,11 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
         
         LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not open address [TCP] " << pClient->address << "!");
         LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [TCP] " << pClient->address << "!");
-        //_logAVError(pClient, ret);
+        _logAVError(pClient, ret);
 
         // this to avoid to try UDP while stopping or aborting
-        //if (pClient->state != STRMRECVCLIENT_STATE_INITIALIZING)
-            //return -1;
+        if (pClient->state != STRMRECVCLIENT_STATE_INITIALIZING)
+            return -1;
 
         // try with UDP
         LOG4CPLUS_TRACE(logger, "[CLIENT " << pClient->clientId << "] avformat_open_input() [UDP]... ");
@@ -493,9 +494,9 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
         {
             LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
             LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
-            //_logAVError(pClient, ret);
+            _logAVError(pClient, ret);
 
-        //return -1;
+          return -1;
         }
     }
 
@@ -513,7 +514,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
     {
         LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not get stream info! ");
         LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not get stream info! ");
-        //_logAVError(pClient, ret);
+        _logAVError(pClient, ret);
 
         return - 1;
     }
@@ -570,7 +571,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
     {
         LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not copy codec context!");
         LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not copy codec context!");
-        //_logAVError(pClient, ret);
+        _logAVError(pClient, ret);
 
         return - 1; // error copying codec context
     }
@@ -583,7 +584,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
     {
         LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not open codec!");
         LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open codec!");
-        //_logAVError(pClient, ret);
+        _logAVError(pClient, ret);
 
         return - 1;
     }
@@ -642,7 +643,7 @@ int STRMRECVClient::_readFrame(STRMRECVClientStruct *pClient)
         {
             Logger logger = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER));
             LOG4CPLUS_WARN(logger, "[CLIENT " << pClient->clientId << "] frame read failed or stream not valid!");
-            //_logAVError(pClient, ret);
+            _logAVError(pClient, ret);
 
             pClient->state = STRMRECVCLIENT_STATE_ABORTING;
         }

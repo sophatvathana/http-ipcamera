@@ -8,8 +8,8 @@
 # yum install centos-release-scl-rh
 # yum install devtoolset-3-gcc devtoolset-3-gcc-c++
 # scl enable devtoolset-3 bash
-source ~/.bash
-source ~/.bashrc
+# source ~/.bash
+# source ~/.bashrc
 unamestr=`uname`
 set -e           
 set -E           
