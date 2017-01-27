@@ -713,8 +713,7 @@ void STRMRECVClient::threadLoop(STRMRECVClientParameters *parameters)
         Logger loggerError = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_ERROR_LOGGER));
         LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] init failed!");
         LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] init failed!");
-
-        //return;
+        return;
     }
 
     pClient->state = STRMRECVCLIENT_STATE_LOOPING;

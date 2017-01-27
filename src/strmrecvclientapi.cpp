@@ -75,7 +75,7 @@ void startup_thread_loop(STRMRECVClientParameters *parameters)
         if (instance->clients[clientId] != NULL)
             LOG4CPLUS_DEBUG(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "[CLIENT " << clientId << "] STATE = " << state_to_string(instance->clients[clientId]->state));
         LOG4CPLUS_TRACE(logger, "[CLIENT " << clientId << "] wait = " << wait);
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     // if not initialized quit
