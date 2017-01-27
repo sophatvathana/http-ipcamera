@@ -498,7 +498,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
             LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
             _logAVError(pClient, ret);
 
-          //return -1;
+            return -1;
         }
     }
 
