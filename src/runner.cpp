@@ -96,6 +96,11 @@ struct HelloWorldHandler : public RequestHandler {
                         strmrecvclient_log_state(clientId);
                         data->state = strmrecvclient_get_state(clientId);
                         
+                        if (data->state == STRMRECVCLIENT_STATE_ERROR){
+                            strmrecvclient_start(clientId, addr, 1);
+                            continue;
+                        }
+
                         if (data->state != STRMRECVCLIENT_STATE_LOOPING){
                             if (data->state < STRMRECVCLIENT_STATE_INITIALIZING)
                               strmrecvclient_start(clientId, addr, 1);
@@ -105,10 +110,6 @@ struct HelloWorldHandler : public RequestHandler {
                             continue;
                         }
 
-                        if (data->state == STRMRECVCLIENT_STATE_ERROR){
-                            strmrecvclient_start(clientId, addr, 1);
-                            continue;
-                        }
 
        if (strmrecvclient_wait(clientId) != 0)
             continue;
