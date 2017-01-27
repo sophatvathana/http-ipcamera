@@ -460,8 +460,8 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
 
     // open rtsp
     pClient->_pFormatCtx = avformat_alloc_context();
-    // pClient->_pFormatCtx->interrupt_callback = int_cb;
-    // pClient->_pFormatCtx->interrupt_callback.opaque = pClient;
+    pClient->_pFormatCtx->interrupt_callback = int_cb;
+    pClient->_pFormatCtx->interrupt_callback.opaque = pClient;
 
     int ret = 0;
 
