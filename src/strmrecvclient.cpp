@@ -483,21 +483,21 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
         _logAVError(pClient, ret);
 
         // this to avoid to try UDP while stopping or aborting
-        if (pClient->state != STRMRECVCLIENT_STATE_INITIALIZING)
-            return -1;
+        // if (pClient->state != STRMRECVCLIENT_STATE_INITIALIZING)
+        //     return -1;
 
-        // try with UDP
-        LOG4CPLUS_TRACE(logger, "[CLIENT " << pClient->clientId << "] avformat_open_input() [UDP]... ");
-        ret = avformat_open_input(&pClient->_pFormatCtx, pClient->address.c_str(), NULL, NULL);
+        // // try with UDP
+        // LOG4CPLUS_TRACE(logger, "[CLIENT " << pClient->clientId << "] avformat_open_input() [UDP]... ");
+        // ret = avformat_open_input(&pClient->_pFormatCtx, pClient->address.c_str(), NULL, NULL);
 
-        if (ret < 0)
-        {
-            LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
-            LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
-            _logAVError(pClient, ret);
+        // if (ret < 0)
+        // {
+        //     LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
+        //     LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
+        //     _logAVError(pClient, ret);
 
-          //return -1;
-        }
+        //   //return -1;
+        // }
     }
 
     // find stream info
