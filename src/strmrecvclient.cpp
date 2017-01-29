@@ -476,8 +476,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
     av_dict_free(&options);
 
     if (ret < 0)
-    {
-        
+    {     
         LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not open address [TCP] " << pClient->address << "!");
         LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [TCP] " << pClient->address << "!");
         _logAVError(pClient, ret);
@@ -769,7 +768,7 @@ void STRMRECVClient::abort(int clientId)
 
     clients[clientId]->state = STRMRECVCLIENT_STATE_ABORTING;
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER));
-   LOG4CPLUS_TRACE(logger , "[CLIENT " << clientId << "] STATE = " << state_to_string(clients[clientId]->state));
+    LOG4CPLUS_TRACE(logger , "[CLIENT " << clientId << "] STATE = " << state_to_string(clients[clientId]->state));
 }
 
 int STRMRECVClient::destroy(int clientId)

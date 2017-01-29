@@ -91,9 +91,9 @@ void startup_thread_loop(STRMRECVClientParameters *parameters)
             instance->abort(clientId);
 
             wait = STRMRECVCLIENT_TIMEOUT;
-            LOG4CPLUS_ERROR(loggerError, "[CLIENT " << clientId << "] aborting...");
-            LOG4CPLUS_ERROR(logger, "[CLIENT " << clientId << "] aborting...");
-
+            LOG4CPLUS_ERROR(loggerError, "[CLIENT " << clientId << "] aborting crazy...");
+            LOG4CPLUS_ERROR(logger, "[CLIENT " << clientId << "] aborting crazy...");
+            STRMRECVClient::getInstance()->destroy(clientId);
             while (wait-- > 0 && instance->clients[clientId]->state == STRMRECVCLIENT_STATE_ABORTING)
             {
                 LOG4CPLUS_DEBUG(logger, "[CLIENT " << clientId << "] STATE = " << state_to_string(instance->clients[clientId]->state));
@@ -102,6 +102,7 @@ void startup_thread_loop(STRMRECVClientParameters *parameters)
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
         }
+
     }
 }
 
@@ -122,7 +123,10 @@ STRMRECVAPI int STRMRECVCALL strmrecvclient_start(int clientId, const char *addr
     if (STRMRECVClient::getInstance()->clients[clientId] != NULL && STRMRECVClient::getInstance()->clients[clientId]->state > STRMRECVCLIENT_STATE_CLEANED)
     {
         LOG4CPLUS_WARN(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "[CLIENT " << clientId << "] client already started.");
-
+        if(STRMRECVClient::getInstance()->clients[clientId]->address != address){
+            STRMRECVClient::getInstance()->clients[clientId]->state = STRMRECVCLIENT_STATE_CLEANED;
+            STRMRECVClient::getInstance()->clients[clientId]->address = address;
+        }
         return 0;
     }
 
