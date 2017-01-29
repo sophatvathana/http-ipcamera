@@ -1,10 +1,3 @@
-/**
- * logger
- * Author:		Geoffroy Planquart <geoffroy@aethelflaed.com>
- * Created:		January 19 2013
- * Last Change:	January 23 2013
- */
-
 #include "daemonlogger.h"
 
 using namespace daemonize;

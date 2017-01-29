@@ -1,10 +1,3 @@
-/**
- * daemonizer
- * Author:		Geoffroy Planquart <geoffroy@aethelflaed.com>
- * Created:		January 20 2013
- * Last Change:	January 30 2013
- */
-
 #include "daemonizer.h"
 
 #include <cstdio>

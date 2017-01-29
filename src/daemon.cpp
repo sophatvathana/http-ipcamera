@@ -1,10 +1,3 @@
-/**
- * daemon
- * Author:		Geoffroy Planquart <geoffroy@aethelflaed.com>
- * Created:		January 20 2013
- * Last Change:	January 30 2013
- */
-
 #include "daemon.h"
 #include <stdexcept>
 #include <unistd.h>

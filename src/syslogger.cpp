@@ -1,10 +1,3 @@
-/**
- * syslog
- * Author:		Geoffroy Planquart <geoffroy@aethelflaed.com>
- * Created:		January 21 2013
- * Last Change:	January 21 2013
- */
-
 #include <cstring>
 #include <cstdlib>
 
