@@ -169,6 +169,73 @@ void runner(){
       //thread_runner.join();
 }
 
+bool daemonize() {
+  pid_t pid = fork();
+  if (pid == -1) {
+    std::stringstream ss;
+    ss << "Could not become a daemon: fork #1 failed: " << errno;
+    throw std::logic_error(ss.str());
+  }
+  if (pid != 0) {
+    _exit(0); // exit parent
+  }
+
+  pid_t sid = setsid();
+  if (sid == -1) {
+    std::stringstream ss;
+    ss << "Could not become a daemon: setsid failed: " << errno;;
+    throw std::logic_error(ss.str());
+  }
+
+  // check fork for child
+  pid = fork();
+  if (pid == -1) {
+    std::stringstream ss;
+    ss << "Could not become a daemon: fork #2 failed: " << errno;
+    throw std::logic_error(ss.str());
+  }
+  if (pid != 0) {
+    _exit(0); // exit session leader
+  }
+
+  for (int i = getdtablesize(); i--; ) {
+    close(i);
+  }
+  umask(0002); // disable: S_IWOTH
+  chdir("/");
+
+  const char *devnull = "/dev/null";
+  stdin = fopen(devnull, "a+");
+  if (stdin == NULL) {
+    return false;
+  }
+  stdout = fopen(devnull, "w");
+  if (stdout == NULL) {
+    return false;
+  }
+  stderr = fopen(devnull, "w");
+  if (stderr == NULL) {
+    return false;
+  }
+  return true;
+}
+
+// void signalHandler(int signo) {
+//   if ((SIGINT == signo || SIGTERM == signo) && ::server != NULL) {
+//     server->stop();
+//   }
+// }   
+
+// void setUpSignalHandlers() {
+//   if (SIG_ERR == signal(SIGINT, signalHandler)) {
+//     throw std::runtime_error("Cannot set up SIGINT handler");
+//   } 
+//   if (SIG_ERR == signal(SIGTERM, signalHandler)) {
+//     throw std::runtime_error("Cannot set up SIGTERM handler");
+//   }
+// }
+
+
 void print_usage(FILE* stream, int exit_code) {
     fprintf(stream, "Usage: %s <operation name> [other options] \n", _args.program_name);
     fprintf(stream,
@@ -201,32 +268,10 @@ void select_option(int argc, char* argv[]) {
               runner();
               break;
             case 'd':
-              setlogmask(LOG_UPTO(LOG_NOTICE));
-              openlog(DAEMON_NAME, LOG_CONS | LOG_NDELAY | LOG_PERROR | LOG_PID, LOG_USER);
-
-              syslog(LOG_INFO, "Running Daemon");
-
-              pid_t pid, sid;
-
-              pid = fork();
-
-              if (pid < 0) { exit(EXIT_FAILURE); }
-
-              if (pid > 0) { exit(EXIT_SUCCESS); }
-              umask(0);
-              sid = setsid();
-              if (sid < 0) { exit(EXIT_FAILURE); }
-
-              if ((chdir("/")) < 0) { exit(EXIT_FAILURE); }
-
-                close(STDIN_FILENO);
-                close(STDOUT_FILENO);
-                close(STDERR_FILENO);
-                //while(1){
+                  if (!daemonize()) {
+                    exit(EXIT_FAILURE);
+                  }
                     runner();
-                  //  sleep(1);
-                  //}
-                closelog();
                 _args.config_file = optarg;
                 break;
             case 'h':
