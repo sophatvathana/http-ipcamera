@@ -124,10 +124,10 @@ STRMRECVAPI int STRMRECVCALL strmrecvclient_start(int clientId, const char *addr
     {
         LOG4CPLUS_WARN(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "[CLIENT " << clientId << "] client already started.");
         if(STRMRECVClient::getInstance()->clients[clientId]->address != address){
-            STRMRECVClient::getInstance()->clients[clientId]->address = address;
-            STRMRECVClient::getInstance()->clients[clientId]->state = STRMRECVCLIENT_STATE_CLEANED;
-            STRMRECVClient::getInstance()->clients[clientId]->state = STRMRECVCLIENT_STATE_INITIALIZING;
-           // return -1;
+             STRMRECVClient::getInstance()->clients[clientId]->address = address;
+            // STRMRECVClient::getInstance()->clients[clientId]->state = STRMRECVCLIENT_STATE_CLEANED;
+            // STRMRECVClient::getInstance()->clients[clientId]->state = STRMRECVCLIENT_STATE_INITIALIZING;
+             //return -1;
         }
         return 0;
     }

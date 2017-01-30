@@ -150,7 +150,7 @@ struct HelloWorldHandler : public RequestHandler {
         });
           printf("%d\n", std::this_thread::get_id());
           thread_stream.detach();
-          thread_stream.join();
+          //thread_stream.join();
 	}
 };
 void runner(){
@@ -158,11 +158,11 @@ void runner(){
   std::stringstream config(conf);
   Server server(config);
         server.addHandler("/test", new HelloWorldHandler());
-      std::thread thread_runner([&server]{
+      //std::thread thread_runner([&server]{
         server.run(100);
-      });
-      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-      thread_runner.join();
+      //});
+      // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      // thread_runner.join();
 }
 
 bool daemonize() {
