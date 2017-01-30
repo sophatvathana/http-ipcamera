@@ -489,7 +489,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
         // this to avoid to try UDP while stopping or aborting
         if (pClient->state != STRMRECVCLIENT_STATE_INITIALIZING){
             pClient->state = STRMRECVCLIENT_STATE_INITIALIZING;
-            return -1;
+            return 0;
         }
 
         // try with UDP
@@ -504,7 +504,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
             LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
             _logAVError(pClient, ret);
 
-            return -1;
+            return 0;
         }
     }
 
@@ -524,7 +524,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
         LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not get stream info! ");
         _logAVError(pClient, ret);
 
-        return - 1;
+        return 0;
     }
 
     // search video stream
