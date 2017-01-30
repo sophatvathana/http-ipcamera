@@ -495,7 +495,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
         // try with UDP
         LOG4CPLUS_TRACE(logger, "[CLIENT " << pClient->clientId << "] avformat_open_input() [UDP]... ");
         try{
-          ret = avformat_open_input(&pClient->_pFormatCtx, pClient->address.c_str(), NULL, NULL);
+          ret = avformat_open_input(&pClient->_pFormatCtx, pClient->address.c_str(), 0, 0);
         }catch(...){}
 
         if (ret < 0)
@@ -515,7 +515,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
     int64_t max_analyze_duration = pClient->_pFormatCtx->max_analyze_duration;
 
     pClient->_pFormatCtx->max_analyze_duration = 0;
-    ret = avformat_find_stream_info(pClient->_pFormatCtx, NULL);
+    ret = avformat_find_stream_info(pClient->_pFormatCtx, 0);
     pClient->_pFormatCtx->max_analyze_duration = max_analyze_duration;
 
     if (ret < 0)
