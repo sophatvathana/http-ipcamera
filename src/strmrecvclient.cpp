@@ -16,6 +16,7 @@
 #include <stdbool.h>
 #include <libavutil/opt.h>
 #include <unistd.h>
+#include <signal.h>
 using namespace loghandlerns;
 
 namespace strmrecvclientns {
@@ -452,9 +453,9 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
     pClient->state = STRMRECVCLIENT_STATE_INITIALIZING;
     LOG4CPLUS_TRACE(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "[CLIENT " << pClient->clientId << "] STATE = " << state_to_string(pClient->state));
 
-    pClient->_pCodecCtxOrig = NULL;
-    pClient->_pCodecCtx = NULL;
-    pClient->_pCodec = NULL;
+    pClient->_pCodecCtxOrig = 0;
+    pClient->_pCodecCtx = 0;
+    pClient->_pCodec = 0;
    
     LOG4CPLUS_DEBUG(logger, "[CLIENT " << pClient->clientId << "] Trying to open address " << pClient->address);
 
@@ -470,10 +471,14 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
     LOG4CPLUS_TRACE(logger, "[CLIENT " << pClient->clientId << "] avformat_open_input() [TCP]... ");
 
     // try with TCP
-    AVDictionary *options = NULL;
-    av_dict_set(&options, "rtsp_transport", "tcp", 0);
-    ret = avformat_open_input(&pClient->_pFormatCtx, pClient->address.c_str(), NULL, &options);
-    av_dict_free(&options);
+      AVDictionary *options = 0;
+    try{
+        av_dict_set(&options, "rtsp_transport", "tcp", 0);
+        ret = avformat_open_input(&pClient->_pFormatCtx, pClient->address.c_str(), 0, &options);
+        av_dict_free(&options);
+    }catch(...){
+
+    }
 
     if (ret < 0)
     {     
@@ -489,7 +494,9 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
 
         // try with UDP
         LOG4CPLUS_TRACE(logger, "[CLIENT " << pClient->clientId << "] avformat_open_input() [UDP]... ");
-        ret = avformat_open_input(&pClient->_pFormatCtx, pClient->address.c_str(), NULL, NULL);
+        try{
+          ret = avformat_open_input(&pClient->_pFormatCtx, pClient->address.c_str(), NULL, NULL);
+        }catch(...){}
 
         if (ret < 0)
         {
@@ -633,8 +640,7 @@ int STRMRECVClient::_readFrame(STRMRECVClientStruct *pClient)
     pClient->av_frame_read_ticks = clock();
 
     // is this a packet from the video stream?
-    if (av_read_frame(pClient->_pFormatCtx, &pClient->_packet) < 0 )
-        //|| pClient->_packet.stream_index != pClient->_videoStream)
+    if (av_read_frame(pClient->_pFormatCtx, &pClient->_packet) < 0 || pClient->_packet.stream_index != pClient->_videoStream)
     {
         if (pClient->state == STRMRECVCLIENT_STATE_ABORTING || pClient->state == STRMRECVCLIENT_STATE_STOPPING){
             Logger logger = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER));
