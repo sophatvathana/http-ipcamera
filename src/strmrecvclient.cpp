@@ -504,7 +504,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
             LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
             _logAVError(pClient, ret);
 
-            return 0;
+            return -1;
         }
     }
 
@@ -524,7 +524,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
         LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not get stream info! ");
         _logAVError(pClient, ret);
 
-        return 0;
+        return -1;
     }
 
     // search video stream
