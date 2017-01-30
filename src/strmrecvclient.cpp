@@ -489,7 +489,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
         // this to avoid to try UDP while stopping or aborting
         if (pClient->state != STRMRECVCLIENT_STATE_INITIALIZING){
             pClient->state = STRMRECVCLIENT_STATE_INITIALIZING;
-            return 0;
+            return -1;
         }
 
         // try with UDP
@@ -548,8 +548,8 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
 
     if (pClient->_videoStream == -1)
     {
-        LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not find any MJPEG stream!");
-        LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not find any MJPEG stream!");
+        LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not find any format stream!");
+        LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not find any format stream!");
 
         return - 1;
     }
@@ -714,11 +714,12 @@ void STRMRECVClient::threadLoop(STRMRECVClientParameters *parameters)
 
     if (instance->_init(pClient) < 0)
     {
-        instance->_clean(pClient, STRMRECVCLIENT_STATE_ERROR);
+        instance->_clean(pClient, STRMRECVCLIENT_STATE_CLEANED);
         Logger logger = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER));
         Logger loggerError = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_ERROR_LOGGER));
         LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] init failed!");
         LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] init failed!");
+  
         return;
     }
 
