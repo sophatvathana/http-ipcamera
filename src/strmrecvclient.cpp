@@ -482,6 +482,7 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
 
     if (ret < 0)
     {     
+        pClient->_pFormatCtx = NULL;
         LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not open address [TCP] " << pClient->address << "!");
         LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [TCP] " << pClient->address << "!");
         _logAVError(pClient, ret);
