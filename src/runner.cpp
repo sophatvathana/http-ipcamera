@@ -89,6 +89,17 @@ struct HelloWorldHandler : public RequestHandler {
                       addr = saddr.c_str();
                       rep->write((char *)HEAD_RESPONSE);
                       strmrecvclient_start_log("","");
+                    
+                      // if(strmrecvclient_get_address(clientId).size() != 0){
+                      //   printf("Should work\n");
+                      //   printf("New: %s Old: %s\n",addr, strmrecvclient_get_address(clientId).c_str());
+                      //   if (strmrecvclient_get_address(clientId).compare(addr) !=0){
+                      //     printf("1202 This is different");
+                      //     //strmrecvclient_stop(clientId);
+                      //     strmrecvclient_destroy(clientId);
+                      //     //strmrecvclient_start(clientId, addr, 1);
+                      //   }
+                      // }
                       strmrecvclient_start(clientId, addr, 1);
                       STRMRECVClientData *data = new STRMRECVClientData();
                       int t = 0;
@@ -102,9 +113,9 @@ struct HelloWorldHandler : public RequestHandler {
                         }
 
                         if (data->state != STRMRECVCLIENT_STATE_LOOPING){
-                            if (data->state < STRMRECVCLIENT_STATE_INITIALIZING)
+                            if (data->state < STRMRECVCLIENT_STATE_INITIALIZING){
                               strmrecvclient_start(clientId, addr, 1);
-
+                            }
                             std::this_thread::sleep_for(std::chrono::milliseconds(180));
 
                             continue;
@@ -149,8 +160,9 @@ struct HelloWorldHandler : public RequestHandler {
           }
         });
           printf("%d\n", std::this_thread::get_id());
-          thread_stream.detach();
           //thread_stream.join();
+          thread_stream.detach();
+          //exit(0);
 	}
 };
 void runner(){
@@ -158,11 +170,11 @@ void runner(){
   std::stringstream config(conf);
   Server server(config);
         server.addHandler("/test", new HelloWorldHandler());
-      //std::thread thread_runner([&server]{
-        server.run(100);
-      //});
-      // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-      // thread_runner.join();
+        //std::thread thread_runner([&server]{
+          server.run(100);
+        //});
+      //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+     // thread_runner.join();
 }
 
 bool daemonize() {

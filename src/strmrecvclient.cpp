@@ -130,237 +130,9 @@ bool AssignFunction(void** dest, void* context, const char* name) {
     return *dest != NULL;
 }
 
-
-#ifdef _WIN32
-#  define MODULE_AVUTIL      "avutil-55.dll"
-#  define MODULE_SWRESAMPLE  "swresample-2.dll"
-#  define MODULE_AVCODEC     "avcodec-57.dll"
-#  define MODULE_AVFORMAT    "avformat-57.dll"
-#elif __APPLE__
-#   define MODULE_AVUTIL "libavutil.55.dylib"
-#   define MODULE_SWRESAMPLE "libswresample.2.dylib"
-#   define MODULE_AVCODEC "libavcodec.57.dylib"
-#   define MODULE_AVFORMAT "libavformat.57.dylib"
-#else 
-//Other Unix or linux
-#  define MODULE_AVUTIL      "libavutil.so.55"
-#  define MODULE_SWRESAMPLE  "libswresample.so.2"
-#  define MODULE_AVCODEC     "libavcodec.so.57"
-#  define MODULE_AVFORMAT    "libavformat.so.57"
-#endif
-
-
-static int              (*av_dict_set_func)              (AVDictionary **pm, const char *key, const char *value, int flags);
-static void             (*av_register_all_func)          (void) = 0;
-static int              (*avformat_network_init_func)    (void) = 0;
-static int              (*avformat_open_input_func)      (AVFormatContext **ps, const char *url, AVInputFormat *fmt, AVDictionary **options) = 0;
-static void             (*av_dict_free_func)             (AVDictionary **m) = 0;
-static AVOutputFormat*  (*av_guess_format_func)          (const char *short_name, const char *filename, const char *mime_type) = 0;
-static int              (*avformat_find_stream_info_func)(AVFormatContext *ic, AVDictionary **options) = 0;
-static AVFormatContext* (*avformat_alloc_context_func)   (void);
-static int              (*avio_open2_func)               (AVIOContext **s, const char *url, int flags, const AVIOInterruptCB *int_cb, AVDictionary **options) = 0;
-static void             (*av_init_packet_func)           (AVPacket *pkt) = 0;
-static int              (*av_read_play_func)             (AVFormatContext *s) = 0;
-static int              (*av_read_frame_func)            (AVFormatContext *s, AVPacket *pkt) = 0;
-static AVStream*        (*avformat_new_stream_func)      (AVFormatContext *s, const AVCodec *c) = 0;
-static void             (*avformat_free_context_func)    (AVFormatContext *s) = 0;
-static void             (*av_packet_unref_func)          (AVPacket *pkt) = 0;
-static void             (*av_packet_free_func)           (AVPacket **pkt) = 0;
-static int              (*av_read_pause_func)            (AVFormatContext *s) = 0;
-static void             (*avformat_close_input_func)     (AVFormatContext **s) = 0;
-
-static HMODULE hAvUtil     = 0;
-static HMODULE hSwResample = 0;
-static HMODULE hAvCodec    = 0;
-static HMODULE hAvFormat   = 0;
-
-static bool    isSetFunction = false;
-static bool    isRegister    = false;
-
 //////////////////////////////////////////
 // end of global variables
 //////////////////////////////////////////
-static BOOL InitializeLibrary(const std::string basePath) {
-    LogWrite("InitializeLibrary path: %s", basePath.c_str());
-    if (hAvUtil == 0) {
-        std::string p = basePath;
-        p += MODULE_AVUTIL;
-        if ((hAvUtil = (HMODULE)ALoadLibrary(p.c_str())) == NULL)
-            LogWrite("AvUtil load failed");
-    }
-    if (hSwResample == 0) {
-        std::string p = basePath;
-        p += MODULE_SWRESAMPLE;
-        if ((hSwResample = (HMODULE)ALoadLibrary(p.c_str())) == NULL)
-            LogWrite("SwResample load failed");
-    }
-    if (hAvCodec == 0) {
-        std::string p = basePath;
-        p += MODULE_AVCODEC;
-        if ((hAvCodec = (HMODULE)ALoadLibrary(p.c_str())) == NULL)
-            LogWrite("AvCodec load failed");
-    }
-    if (hAvFormat == 0) {
-        std::string p = basePath;
-        p += MODULE_AVFORMAT;
-        if ((hAvFormat = (HMODULE)ALoadLibrary(p.c_str())) == NULL)
-            LogWrite("AvFormat load failed");
-    }
-
-    return hAvFormat && hAvCodec && hSwResample && hAvUtil  ? 1 : 0;
-}
-
-bool SetFunctions() {
-    bool rslt = false;
-    do {
-        if (!AssignFunction((void**)&(av_dict_set_func), hAvUtil, "av_dict_set")) break;
-        if (!AssignFunction((void**)&(av_dict_free_func), hAvUtil, "av_dict_free")) break;
-
-        if (!AssignFunction((void**)&(av_init_packet_func), hAvCodec, "av_init_packet")) break;
-        if (!AssignFunction((void**)&(av_packet_unref_func), hAvCodec, "av_packet_unref")) break;
-        if (!AssignFunction((void**)&(av_packet_free_func), hAvCodec, "av_packet_free")) break;
-
-        if (!AssignFunction((void**)&(av_register_all_func), hAvFormat, "av_register_all")) break;
-        if (!AssignFunction((void**)&(avformat_network_init_func), hAvFormat, "avformat_network_init")) break;
-        if (!AssignFunction((void**)&(avformat_open_input_func), hAvFormat, "avformat_open_input")) break;
-        if (!AssignFunction((void**)&(avformat_find_stream_info_func), hAvFormat, "avformat_find_stream_info")) break;
-        if (!AssignFunction((void**)&(av_guess_format_func), hAvFormat, "av_guess_format")) break;
-        if (!AssignFunction((void**)&(avformat_alloc_context_func), hAvFormat, "avformat_alloc_context")) break;
-        if (!AssignFunction((void**)&(av_read_play_func), hAvFormat, "av_read_play")) break;
-        if (!AssignFunction((void**)&(av_read_frame_func), hAvFormat, "av_read_frame")) break;
-        if (!AssignFunction((void**)&(avformat_new_stream_func), hAvFormat, "avformat_new_stream")) break;
-        if (!AssignFunction((void**)&(av_read_pause_func), hAvFormat, "av_read_pause")) break;
-        if (!AssignFunction((void**)&(avformat_free_context_func), hAvFormat, "avformat_free_context")) break;
-        if (!AssignFunction((void**)&(avformat_close_input_func), hAvFormat, "avformat_close_input")) break;
-
-        rslt = true;
-        if (!rslt)
-            LogWrite("SetFunctions failed");
-
-    } while (false);
-    return rslt;
-}
-
-// void* STRMRECVClient::createContext(const char* path) {
-//     STRMRECVClientStruct* rslt = NULL;
-
-//     do {
-//         if (!isSetFunction) {
-//             if (!InitializeLibrary(path))
-//                 break;
-
-//             if (!(isSetFunction = SetFunctions()))
-//                 break;
-//         }
-//         if (!isRegister) {
-//             av_register_all_func();
-//             isRegister = avformat_network_init_func() == 0;
-//         }
-
-//         if (isRegister) {
-//             rslt = new STRMRECVClientStruct();
-
-//             rslt->_pFormatCtx = avformat_alloc_context_func();
-//         }
-
-//     } while (false);
-
-//     return rslt;
-// }
-
-// void STRMRECVClient::releaseContext(void* context) {
-//     STRMRECVClientStruct*      ctx  = (STRMRECVClientStruct*)context;
-
-//     do {
-//         if (ctx == NULL)
-//             break;
-//         if (ctx->address.size() > 0)
-//             LogWrite("StrmReleaseContext: %s close", ctx->address.c_str());
-
-//         av_packet_unref_func(&(ctx->_packet));
-//         if (ctx->_pFormatCtx) {
-//             if (ctx->connected)
-//                 avformat_close_input_func(&(ctx->_pFormatCtx));
-
-//             avformat_free_context_func(ctx->_pFormatCtx);
-//         }
-
-//         delete ctx;
-//     } while (false);
-// }
-
-
-
-// unsigned char* STRMRECVClient::readFrame(void* context, int* bufferLen) {
-//     STRMRECVClientStruct*      ctx  = (STRMRECVClientStruct*)context;
-//     unsigned char*   rslt = 0;
-//     ctx->av_frame_read_ticks = clock();
-//     while(rslt == 0) {
-//         if (ctx == NULL)
-//             break;
-
-//         av_packet_unref_func(&(ctx->_packet));
-//         av_init_packet_func(&(ctx->_packet));
-
-//         if (av_read_frame_func(ctx->_pFormatCtx, &(ctx->_packet)) < 0) {
-//             LogWrite("StrmReadFrame: %s receive failed", ctx->address.c_str());
-//             break;
-//         }
-
-//         if (ctx->_packet.stream_index == ctx->videoIndex && ctx->_packet.size > 0) {
-//             int cpySize = (ctx->buffer.size() < ctx->_packet.size) ? ctx->buffer.size() : ctx->_packet.size;
-//             rslt = &(ctx->buffer[0]);
-//             memcpy(rslt, ctx->_packet.data, cpySize);
-//             *bufferLen = cpySize;
-//         }
-//     };
-
-//     return rslt;
-// }
-
-// int STRMRECVClient::openRtsp(void* context, const char* url) {
-//     STRMRECVClientStruct*      ctx  = (STRMRECVClientStruct*)context;
-//     int              rslt = 0;
-//     AVDictionary*    opts = 0;
-//     do {
-//         LogWrite("StrmOpenRtsp: %s open", url);
-//         if (ctx == NULL)
-//             break;
-
-//         av_dict_set_func(&opts, "rtsp_transport", "tcp", 0);
-//         if (avformat_open_input_func(&(ctx->_pFormatCtx), url, NULL, &opts) != 0) {
-//             LogWrite("StrmOpenRtsp: %s open failed", url);
-//             AVERROR(ETIMEDOUT);
-//             break;
-//         }
-//         ctx->connected = true;
-//         ctx->address = url;
-//         if (avformat_find_stream_info_func(ctx->_pFormatCtx, NULL) < 0) {
-//             LogWrite("StrmOpenRtsp: %s receive failed", url);
-//             AVERROR(ETIMEDOUT);
-//             break;
-//         }
-
-//         ctx->videoIndex = -1;
-//         for (unsigned int i=0; i < ctx->_pFormatCtx->nb_streams; i++) {
-//             if (ctx->_pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
-//                 ctx->videoIndex = i;
-//                 break;
-//             }
-//         }
-
-//         av_read_play_func(ctx->_pFormatCtx);
-//         av_init_packet_func(&(ctx->_packet));
-
-//         rslt = (ctx->videoIndex >= 0);
-
-//     } while (false);
-
-//     if (opts)
-//         av_dict_free_func(&opts);
-
-//     return rslt;
-// }
 
 const char *state_to_string(int state)
 {
@@ -411,10 +183,10 @@ STRMRECVClient::STRMRECVClient()
 {
     av_register_all();
     avformat_network_init();
-
     for (int i = 0; i < STRMRECVCLIENT_MAX_CLIENT_NUM; i++)
         clients[i] = NULL;
 }
+
 
 STRMRECVClient* STRMRECVClient::getInstance()
 {
@@ -446,6 +218,10 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
 {
      Logger logger = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER));
      Logger loggerError = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_ERROR_LOGGER));
+     pClient->_pCodecCtxOrig = NULL;
+     pClient->_pCodecCtx = NULL;
+     pClient->_pCodec = NULL;
+     //pClient->_pFormatCtx = NULL;
     // state is set to ERROR by the caller
     if (pClient->address.empty())
         return -1;
@@ -453,13 +229,9 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
     pClient->state = STRMRECVCLIENT_STATE_INITIALIZING;
     LOG4CPLUS_TRACE(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "[CLIENT " << pClient->clientId << "] STATE = " << state_to_string(pClient->state));
 
-    pClient->_pCodecCtxOrig = 0;
-    pClient->_pCodecCtx = 0;
-    pClient->_pCodec = 0;
-   
     LOG4CPLUS_DEBUG(logger, "[CLIENT " << pClient->clientId << "] Trying to open address " << pClient->address);
-
-    // open rtsp
+    
+     // open rtsp
     //AVFormatContext* container = NULL;
     pClient->_pFormatCtx = avformat_alloc_context();
     pClient->_pFormatCtx->interrupt_callback = int_cb;
@@ -473,8 +245,18 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
     // try with TCP
       AVDictionary *options = 0;
     try{
-        av_dict_set(&options, "rtsp_transport", "tcp", 0);
-        ret = avformat_open_input(&pClient->_pFormatCtx, pClient->address.c_str(), 0, &options);
+        //av_dict_set(&options, "rtsp_transport", "tcp", 0);
+        std::size_t pos = pClient->address.find("://"); 
+        std::string str3 = pClient->address.substr (0,pos);
+        printf("%s\n", str3.c_str());
+        if (str3 == "mms") {
+            av_dict_set(&options, "rtsp_transport", "udp_multicast", 0);
+        } else if (str3 == "rtsp") {
+            av_dict_set(&options, "rtsp_transport", "tcp", 0);
+        } else if (str3 == "http") {
+            av_dict_set(&options, "rtsp_transport", "http", 0);
+        }
+        ret = avformat_open_input(&(pClient->_pFormatCtx), pClient->address.c_str(), 0, &options);
         av_dict_free(&options);
     }catch(...){
 
@@ -489,18 +271,19 @@ int STRMRECVClient::_init(STRMRECVClientStruct *pClient)
 
         // this to avoid to try UDP while stopping or aborting
         if (pClient->state != STRMRECVCLIENT_STATE_INITIALIZING){
-            pClient->state = STRMRECVCLIENT_STATE_INITIALIZING;
+            //pClient->state = STRMRECVCLIENT_STATE_CLEANED;
             return -1;
         }
 
         // try with UDP
         LOG4CPLUS_TRACE(logger, "[CLIENT " << pClient->clientId << "] avformat_open_input() [UDP]... ");
         try{
-          ret = avformat_open_input(&pClient->_pFormatCtx, pClient->address.c_str(), 0, 0);
+          ret = avformat_open_input(&(pClient->_pFormatCtx), pClient->address.c_str(), 0, 0);
         }catch(...){}
 
         if (ret < 0)
         {
+            //pClient->_pFormatCtx = NULL;
             LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
             LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] Could not open address [UDP] " << pClient->address << "!");
             _logAVError(pClient, ret);
@@ -685,9 +468,10 @@ void STRMRECVClient::threadLoop(STRMRECVClientParameters *parameters)
 
     STRMRECVClient *instance = getInstance();
     STRMRECVClientStruct *pClient = instance->clients[clientId];
-
-    if (pClient == NULL)
-    {
+    // if(pClient != NULL && pClient->address.compare(parameters->address) != 0){
+    //   pClient->address = parameters->address
+    // }
+    if (pClient == NULL || (pClient != NULL && pClient->address.compare(parameters->address) != 0)){
         pClient = new STRMRECVClientStruct;
 
         pClient->clientId = clientId;

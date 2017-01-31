@@ -52,6 +52,7 @@ extern "C"
     STRMRECVAPI int STRMRECVCALL strmrecvclient_stop(int clientId);
     STRMRECVAPI int STRMRECVCALL strmrecvclient_destroy(int clientId);
 
+    STRMRECVAPI std::string STRMRECVCALL strmrecvclient_get_address(int clientId);
     STRMRECVAPI int STRMRECVCALL strmrecvclient_get_data(int clientId, int frames, int fps, STRMRECVClientData *data);
     STRMRECVAPI int STRMRECVCALL strmrecvclient_get_state(int clientId);
 

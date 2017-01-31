@@ -61,9 +61,10 @@ void startup_thread_loop(STRMRECVClientParameters *parameters)
     // wait initialization
     int wait = STRMRECVCLIENT_TIMEOUT;
     int clientId = ((STRMRECVClientParameters * ) parameters)->clientId;
-
-    // start rtsp thread
-    std::thread(STRMRECVClient::threadLoop, parameters).detach();
+    //if(instance->clients[clientId] != NULL){
+      // start rtsp thread
+      std::thread(STRMRECVClient::threadLoop, parameters).detach();
+    //}
        
     LOG4CPLUS_DEBUG(logger, "[CLIENT " << clientId << "] thread started, waiting initialization...");
 
@@ -105,6 +106,11 @@ void startup_thread_loop(STRMRECVClientParameters *parameters)
 
     }
 }
+STRMRECVAPI std::string STRMRECVCALL strmrecvclient_get_address(int clientId){
+  if(STRMRECVClient::getInstance()->clients[clientId] != NULL)
+    return STRMRECVClient::getInstance()->clients[clientId]->address;
+  return "";
+}
 
 STRMRECVAPI int STRMRECVCALL strmrecvclient_start(int clientId, const char *address, int asyncCall)
 {
@@ -120,15 +126,10 @@ STRMRECVAPI int STRMRECVCALL strmrecvclient_start(int clientId, const char *addr
         return -1;
 
     // check that the client is not already started and is not doing anything
-    if (STRMRECVClient::getInstance()->clients[clientId] != NULL && STRMRECVClient::getInstance()->clients[clientId]->state > STRMRECVCLIENT_STATE_CLEANED)
+    if (STRMRECVClient::getInstance()->clients[clientId] != NULL && STRMRECVClient::getInstance()->clients[clientId]->state > STRMRECVCLIENT_STATE_CLEANED
+      && STRMRECVClient::getInstance()->clients[clientId]->address == address)
     {
         LOG4CPLUS_WARN(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "[CLIENT " << clientId << "] client already started.");
-        if(STRMRECVClient::getInstance()->clients[clientId]->address != address){
-             STRMRECVClient::getInstance()->clients[clientId]->address = address;
-            // STRMRECVClient::getInstance()->clients[clientId]->state = STRMRECVCLIENT_STATE_CLEANED;
-            // STRMRECVClient::getInstance()->clients[clientId]->state = STRMRECVCLIENT_STATE_INITIALIZING;
-             //return -1;
-        }
         return 0;
     }
 
@@ -263,24 +264,3 @@ STRMRECVAPI int STRMRECVCALL strmrecvclient_get_state(int clientId)
 
     return pClient->state;
 }
-
-// STRMRECVAPI void * STRMRECVCALL  StrmCreateContext (const char* path){
-//     STRMRECVClient * strmrecvclientn = new STRMRECVClient();
-//     strmrecvclientn->createContext(path);
-// }
-
-// STRMRECVAPI void STRMRECVCALL StrmReleaseContext(void* context) {
-//     STRMRECVClient * strmrecvclientn = new STRMRECVClient();
-//     strmrecvclientn->releaseContext(context);
-// }
-
-// STRMRECVAPI unsigned char* STRMRECVCALL StrmReadFrame(void* context, int* bufferLen) {
-//     STRMRECVClient * strmrecvclientn =  new STRMRECVClient();
-//     return strmrecvclientn->readFrame(context, bufferLen);
-
-// }
-
-// STRMRECVAPI int STRMRECVCALL StrmOpenRtsp(void* context, const char* url){
-//     STRMRECVClient * strmrecvclientn = new STRMRECVClient();
-//     strmrecvclientn->openRtsp(context, url);
-// }
