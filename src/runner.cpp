@@ -349,7 +349,11 @@ void select_option(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
-    select_option(argc, argv);
+  if (!daemonize()) {
+      exit(EXIT_FAILURE);
+  }
+    runner();
+    //select_option(argc, argv);
 }
 // int main(int argc, char* argv[])
 // {
