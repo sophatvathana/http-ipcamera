@@ -74,16 +74,41 @@ int  t = false;
 struct HelloWorldHandler : public RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
           auto search = req->getQueryString();
+          std::string streamAddr = "";
           std::string address = SonaHttp::getByPattern(search, "(\\baddr=(((?!&).)*))",2);
           if(address.size() == 0){
             rep->setStatus(403);
             rep->setMessage("Error hery");
             rep->flush();
             return;
+          } 
+
+          std::string domain = address.substr(address.find("://",0)+3, address.size());
+          if((int)domain.find("@", 0) < 0){
+            if((int)domain.find_last_of(":") < 0){
+              streamAddr = domain.substr(0,domain.find_last_of("/"));
+            }
+            else
+              streamAddr = domain.substr(0,domain.find_last_of(":"));
+          }else{
+            if((int)domain.find_last_of(":") < 0){
+              streamAddr = domain.substr(domain.find("@", 0)+1,domain.find_last_of("/")-10);
+            }
+            else
+              streamAddr = domain.substr(domain.find("@", 0)+1,domain.find_last_of(":")-10);
           }
-          std::string streamAddr = SonaHttp::getByPattern(address,"([^@:,\\/rtsphttp]+[1-9a-zA-Z])",1);
+
+          printf("%s\n", streamAddr.c_str());
+          //std::string streamAddr = SonaHttp::getByPattern(address,"([^@:,\\/rtsphttp]+[1-9a-zA-Z])",1);
           std::string::size_type loc = streamAddr.find( ".", 0 );
-          if(!SonaHttp::isValidIPAddress(streamAddr)){
+          if(SonaHttp::getByPattern(streamAddr, "([a-zA-Z])", 0).size() == 0){
+            if(!SonaHttp::isValidIPAddress(streamAddr)){
+              rep->setStatus(403);
+              rep->setMessage("Error hery");
+              rep->flush();
+              return;
+            }
+          }else{
             if(!SonaHttp::isDomainMatch(streamAddr, streamAddr.substr(loc, streamAddr.size()))){
               rep->setStatus(403);
               rep->setMessage("Error hery");
