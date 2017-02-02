@@ -163,7 +163,7 @@ struct HelloWorldHandler : public RequestHandler {
                         }
 
                         if (data->state != STRMRECVCLIENT_STATE_LOOPING){
-                            if (data->state < STRMRECVCLIENT_STATE_INITIALIZING && data->state != STRMRECVCLIENT_STATE_ERROR){
+                            if (data->state < STRMRECVCLIENT_STATE_INITIALIZING && data->state != STRMRECVCLIENT_STATE_STOPPING && !data->framesRead){
                               strmrecvclient_start(clientId, addr, 1);
                             }
                             std::this_thread::sleep_for(std::chrono::milliseconds(180));

@@ -73,9 +73,15 @@ void startup_thread_loop(STRMRECVClientParameters *parameters)
            || (instance->clients[clientId]->state != STRMRECVCLIENT_STATE_LOOPING
            && instance->clients[clientId]->state != STRMRECVCLIENT_STATE_ERROR)))
     {
+        printf("INdex!!!11111 -> %d\n", wait);
         if (instance->clients[clientId] != NULL)
             LOG4CPLUS_DEBUG(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "[CLIENT " << clientId << "] STATE = " << state_to_string(instance->clients[clientId]->state));
         LOG4CPLUS_TRACE(logger, "[CLIENT " << clientId << "] wait = " << wait);
+        if(wait <= 0){
+            instance->clients[clientId]->state = STRMRECVCLIENT_STATE_ABORTING;
+            strmrecvclient_stop(clientId);
+            break;
+        }
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
@@ -100,7 +106,10 @@ void startup_thread_loop(STRMRECVClientParameters *parameters)
                 printf("INdex -> %d\n", wait);
                 LOG4CPLUS_DEBUG(logger, "[CLIENT " << clientId << "] STATE = " << state_to_string(instance->clients[clientId]->state));
                 LOG4CPLUS_TRACE(logger, "[CLIENT " << clientId << "] wait = " << wait);
+                if(wait <= 0){
 
+                    STRMRECVClient::getInstance()->clients[clientId]->state = STRMRECVCLIENT_STATE_ERROR;
+                }
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
         }

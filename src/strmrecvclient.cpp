@@ -468,9 +468,7 @@ void STRMRECVClient::threadLoop(STRMRECVClientParameters *parameters)
 
     STRMRECVClient *instance = getInstance();
     STRMRECVClientStruct *pClient = instance->clients[clientId];
-    // if(pClient != NULL && pClient->address.compare(parameters->address) != 0){
-    //   pClient->address = parameters->address
-    // }
+
     if (pClient == NULL || (pClient != NULL && pClient->address.compare(parameters->address) != 0)){
         pClient = new STRMRECVClientStruct;
 
@@ -499,12 +497,13 @@ void STRMRECVClient::threadLoop(STRMRECVClientParameters *parameters)
 
     if (instance->_init(pClient) < 0)
     {
-        instance->_clean(pClient, STRMRECVCLIENT_STATE_CLEANED);
+        if(pClient->state < 5 && pClient->state != 1)
+            instance->_clean(pClient, STRMRECVCLIENT_STATE_CLEANED);
         Logger logger = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER));
         Logger loggerError = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_ERROR_LOGGER));
-        LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] init failed!");
+        LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] init failed! with current state:" <<pClient->state );
         LOG4CPLUS_ERROR(logger, "[CLIENT " << pClient->clientId << "] init failed!");
-  
+        
         return;
     }
 
