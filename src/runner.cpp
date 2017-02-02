@@ -163,7 +163,7 @@ struct HelloWorldHandler : public RequestHandler {
                         }
 
                         if (data->state != STRMRECVCLIENT_STATE_LOOPING){
-                            if (data->state < STRMRECVCLIENT_STATE_INITIALIZING && data->state != STRMRECVCLIENT_STATE_STOPPING && !data->framesRead){
+                            if (data->state < STRMRECVCLIENT_STATE_INITIALIZING && data->state != STRMRECVCLIENT_STATE_STOPPING){
                               strmrecvclient_start(clientId, addr, 1);
                             }
                             std::this_thread::sleep_for(std::chrono::milliseconds(180));
@@ -216,7 +216,7 @@ void runner(){
         server.addHandler("/test", new HelloWorldHandler());
         server.addHandler("/stop", new StopClient());
         //std::thread thread_runner([&server]{
-          server.run(1000);
+          server.run(1);
         //});
         // std::this_thread::sleep_for(std::chrono::milliseconds(500));
         // thread_runner.join();
