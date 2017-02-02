@@ -499,7 +499,7 @@ void STRMRECVClient::threadLoop(STRMRECVClientParameters *parameters)
 
     if (instance->_init(pClient) < 0)
     {
-        instance->_clean(pClient, STRMRECVCLIENT_STATE_ERROR);
+        instance->_clean(pClient, STRMRECVCLIENT_STATE_CLEANED);
         Logger logger = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER));
         Logger loggerError = Logger::getInstance(LOG4CPLUS_TEXT(DEFAULT_ERROR_LOGGER));
         LOG4CPLUS_ERROR(loggerError, "[CLIENT " << pClient->clientId << "] init failed!");

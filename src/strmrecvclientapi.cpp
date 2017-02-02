@@ -94,7 +94,7 @@ void startup_thread_loop(STRMRECVClientParameters *parameters)
             wait = STRMRECVCLIENT_TIMEOUT;
             LOG4CPLUS_ERROR(loggerError, "[CLIENT " << clientId << "] aborting crazy...");
             LOG4CPLUS_ERROR(logger, "[CLIENT " << clientId << "] aborting crazy...");
-            //STRMRECVClient::getInstance()->stop(clientId);
+            STRMRECVClient::getInstance()->clients[clientId]->state = STRMRECVCLIENT_STATE_ERROR; ;
             while (wait-- > 0 && instance->clients[clientId]->state == STRMRECVCLIENT_STATE_ABORTING)
             {
                 printf("INdex -> %d\n", wait);
