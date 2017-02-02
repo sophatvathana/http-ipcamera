@@ -97,6 +97,7 @@ void startup_thread_loop(STRMRECVClientParameters *parameters)
             //STRMRECVClient::getInstance()->stop(clientId);
             while (wait-- > 0 && instance->clients[clientId]->state == STRMRECVCLIENT_STATE_ABORTING)
             {
+                printf("INdex -> %d\n", wait);
                 LOG4CPLUS_DEBUG(logger, "[CLIENT " << clientId << "] STATE = " << state_to_string(instance->clients[clientId]->state));
                 LOG4CPLUS_TRACE(logger, "[CLIENT " << clientId << "] wait = " << wait);
 

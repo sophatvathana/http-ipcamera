@@ -166,16 +166,19 @@ void Server::run(size_t thread_number)
     if(!thread_number)
         return;
 
-    std::vector<std::thread> threads;
-    for(size_t i = 0; i < thread_number; ++i) 
-    {
-        threads.push_back(std::thread([this] 
+    //std::vector<std::thread> threads;
+    // for(size_t i = 0; i < thread_number; ++i) 
+    // {
+        //threads.push_back(
+            std::thread thread_server([this] 
         {
             service_.run();
-        }));
-    }
-    for(auto&& th : threads)
-        th.join();
+        });
+            thread_server.join();
+            //);
+    //}
+    //for(auto&& th : threads)
+        //th.join();
     service_.reset();
 }
 

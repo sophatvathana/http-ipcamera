@@ -71,6 +71,17 @@ const char SEPARATOR[] =
 };
 
 int  t = false;
+struct StopClient : public RequestHandler {
+  void handleRequest(RequestPtr req, ResponsePtr rep) override {
+    int clientId = std::stoi((char*)SonaHttp::getParam(req->getQueryString(), "id").c_str());
+    int de = std::stoi((char*)SonaHttp::getParam(req->getQueryString(), "rm").c_str());
+      strmrecvclient_stop(clientId);
+    if(de == 1){
+      strmrecvclient_destroy(clientId);
+    }
+  }
+};
+
 struct HelloWorldHandler : public RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
           auto search = req->getQueryString();
@@ -152,7 +163,7 @@ struct HelloWorldHandler : public RequestHandler {
                         }
 
                         if (data->state != STRMRECVCLIENT_STATE_LOOPING){
-                            if (data->state < STRMRECVCLIENT_STATE_INITIALIZING){
+                            if (data->state < STRMRECVCLIENT_STATE_INITIALIZING && data->state != STRMRECVCLIENT_STATE_CLEANED){
                               strmrecvclient_start(clientId, addr, 1);
                             }
                             std::this_thread::sleep_for(std::chrono::milliseconds(180));
@@ -192,7 +203,7 @@ struct HelloWorldHandler : public RequestHandler {
             delete data;
             strmrecvclient_stop_log();
         });
-          printf("%d\n", std::this_thread::get_id());
+          //printf("%d\n", std::this_thread::get_id());
           //thread_stream.join();
           thread_stream.detach();
           //exit(0);
@@ -203,8 +214,9 @@ void runner(){
   std::stringstream config(conf);
   Server server(config);
         server.addHandler("/test", new HelloWorldHandler());
+        server.addHandler("/stop", new StopClient());
         //std::thread thread_runner([&server]{
-          server.run(100);
+          server.run(1000);
         //});
         // std::this_thread::sleep_for(std::chrono::milliseconds(500));
         // thread_runner.join();
