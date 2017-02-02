@@ -142,7 +142,7 @@ struct HelloWorldHandler : public RequestHandler {
                       STRMRECVClientData *data = new STRMRECVClientData();
                       int t = 0;
                       while(1){
-                        strmrecvclient_stop_log();
+                        //strmrecvclient_stop_log();
                         strmrecvclient_log_state(clientId);
                         data->state = strmrecvclient_get_state(clientId);
                         
@@ -204,7 +204,7 @@ void runner(){
   Server server(config);
         server.addHandler("/test", new HelloWorldHandler());
         //std::thread thread_runner([&server]{
-          server.run(10);
+          server.run(100);
         //});
         // std::this_thread::sleep_for(std::chrono::milliseconds(500));
         // thread_runner.join();
@@ -302,7 +302,7 @@ void select_option(int argc, char* argv[]) {
     _args.verbose = 0;
     _args.program_name = argv[0];
 
-    do {
+    //do {
         next_option = getopt_long(argc, argv, short_options, long_options, NULL);
         switch (next_option) {
             case 'a':
@@ -323,7 +323,7 @@ void select_option(int argc, char* argv[]) {
             default: 
                 exit(EXIT_FAILURE);
         }
-    } while (next_option != -1);
+    //} while (next_option != -1);
 
     if (argc < 2 || _args.operation_name == NULL) {
         print_usage(stdout, 0);
@@ -349,11 +349,11 @@ void select_option(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
-  if (!daemonize()) {
-      exit(EXIT_FAILURE);
-  }
-    runner();
-    //select_option(argc, argv);
+  // if (!daemonize()) {
+  //     exit(EXIT_FAILURE);
+  // }
+  //   runner();
+  select_option(argc, argv);
 }
 // int main(int argc, char* argv[])
 // {
