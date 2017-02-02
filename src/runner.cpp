@@ -172,7 +172,7 @@ void runner(){
   Server server(config);
         server.addHandler("/test", new HelloWorldHandler());
         //std::thread thread_runner([&server]{
-          server.run(100);
+          server.run(1000);
         //});
         // std::this_thread::sleep_for(std::chrono::milliseconds(500));
         // thread_runner.join();
