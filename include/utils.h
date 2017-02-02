@@ -130,4 +130,5 @@ bool isValidIPAddress(const std::string& addr);
 bool isDomainMatch(const std::string& addr, std::string base);
 bool isPathMatch(std::string path, std::string base);
 std::string getParam(std::string addr, std::string name);
+std::string getByPattern(std::string source, std::string pattern, int index);
 }       /**< namespace SonaHttp */

@@ -73,20 +73,33 @@ const char SEPARATOR[] =
 int  t = false;
 struct HelloWorldHandler : public RequestHandler {
 	void handleRequest(RequestPtr req, ResponsePtr rep) override {
+          auto search = req->getQueryString();
+          std::string address = SonaHttp::getByPattern(search, "(\\baddr=(((?!&).)*))",2);
+          if(address.size() == 0){
+            rep->setStatus(403);
+            rep->setMessage("Error hery");
+            rep->flush();
+            return;
+          }
+          std::string streamAddr = SonaHttp::getByPattern(address,"([^@:,\\/rtsphttp]+[1-9a-zA-Z])",1);
+          std::string::size_type loc = streamAddr.find( ".", 0 );
+          if(!SonaHttp::isValidIPAddress(streamAddr)){
+            if(!SonaHttp::isDomainMatch(streamAddr, streamAddr.substr(loc, streamAddr.size()))){
+              rep->setStatus(403);
+              rep->setMessage("Error hery");
+              rep->flush();
+              return;
+            }
+          }
+          if (streamAddr.size() != 0){
+            printf("This is stream address: %s\n", streamAddr.c_str());
+          }
           //rep->
           //std::terminate();
             int clientId = std::stoi((char*)SonaHttp::getParam(req->getQueryString(), "id").c_str());
             //strmrecvclient_stop(clientId);
-            std::thread thread_stream([req, rep, clientId]{
-                const char * addr = NULL;
-                const std::string rg = "(\\baddr=(((?!&).)*))";
-                static const std::regex regex(rg);
-                std::smatch smt;
-
-                auto search = req->getQueryString();
-                if (std::regex_search(search, smt, regex)) {
-                      std::string saddr =  smt[2];
-                      addr = saddr.c_str();
+            std::thread thread_stream([req, rep, clientId, address]{
+                      const char * addr = address.c_str();
                       rep->write((char *)HEAD_RESPONSE);
                       strmrecvclient_start_log("","");
                     
@@ -153,12 +166,6 @@ struct HelloWorldHandler : public RequestHandler {
          // strmrecvclient_destroy(clientId);
             delete data;
             strmrecvclient_stop_log();
-          }else{
-              char * t = "សូមដាក់ ឲ្យបានត្រឹមត្រូវ";
-              rep->raw_write(t, strlen(t));
-              rep->flush();
-            return;
-          }
         });
           printf("%d\n", std::this_thread::get_id());
           //thread_stream.join();

@@ -336,7 +336,23 @@ std::string getParam(std::string addr, std::string name){
                 return results.str(2);
               }
         }
-        return NULL;
+        return "";
+}
+
+std::string getByPattern(std::string source, std::string pattern, int index){
+  printf("Before Search %s\n", source.c_str());
+    const std::regex regex(pattern);
+    std::smatch smt;
+    auto datas = source;
+    if(std::regex_search(datas, smt, regex)){
+        std::string hs = smt[index];
+        // for(int i=0; i<smt.length() ;i++){
+        //   std::string hss = smt[i];
+        //   printf("%d : -> %s\n",i, hss.c_str());
+        // }
+        return hs;
+    }
+    return "";
 }
 
 }    /**< namespace SonaHttp */
