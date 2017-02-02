@@ -25,8 +25,8 @@
 #define DEFAULT_IMMEDIATE_FLUSH true
 
 #define DEFAULT_LOG_PATTERN_LAYOUT "%D{%Y-%m-%d %H:%M:%S.%q} [%c] [%H] [%t] [%p] %m%n"
-#define DEFAULT_OUTPUT_LOG_FILE "/home/ipcam/strmrecvclient.output.log"
-#define DEFAULT_ERROR_LOG_FILE "/home/ipcam/strmrecvclient.error.log"
+#define DEFAULT_OUTPUT_LOG_FILE "strmrecvclient.output.log"
+#define DEFAULT_ERROR_LOG_FILE "strmrecvclient.error.log"
 
 #define MAX_LOG_FILE_SIZE 4194304L
 #define MAX_LOG_BACKUP_INDEX 4
