@@ -104,6 +104,7 @@ struct HelloWorldHandler : public RequestHandler {
                       STRMRECVClientData *data = new STRMRECVClientData();
                       int t = 0;
                       while(1){
+                        strmrecvclient_stop_log();
                         strmrecvclient_log_state(clientId);
                         data->state = strmrecvclient_get_state(clientId);
                         
@@ -146,11 +147,11 @@ struct HelloWorldHandler : public RequestHandler {
               
         }
          std::this_thread::sleep_for(std::chrono::milliseconds(180));
-    }
+      }
          //  rep->flush();
             strmrecvclient_stop(clientId);
          // strmrecvclient_destroy(clientId);
-          delete data;
+            delete data;
             strmrecvclient_stop_log();
           }else{
               char * t = "សូមដាក់ ឲ្យបានត្រឹមត្រូវ";
@@ -170,11 +171,11 @@ void runner(){
   std::stringstream config(conf);
   Server server(config);
         server.addHandler("/test", new HelloWorldHandler());
-        std::thread thread_runner([&server]{
+        //std::thread thread_runner([&server]{
           server.run(100);
-        });
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        thread_runner.join();
+        //});
+        // std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        // thread_runner.join();
 }
 
 bool daemonize() {
