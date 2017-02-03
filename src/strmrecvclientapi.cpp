@@ -86,34 +86,36 @@ void startup_thread_loop(STRMRECVClientParameters *parameters)
     }
 
     // if not initialized quit
-    if (instance->clients[clientId] == NULL
-        || instance->clients[clientId]->state != STRMRECVCLIENT_STATE_LOOPING)
-    {
+    // if (instance->clients[clientId] == NULL
+    //     || instance->clients[clientId]->state != STRMRECVCLIENT_STATE_LOOPING)
+    // {
         
-        LOG4CPLUS_ERROR(loggerError, "[CLIENT " << clientId << "] rtsp thread not looping... something has gone wrong :(");
-        LOG4CPLUS_ERROR(logger, "[CLIENT " << clientId << "] rtsp thread not looping... something has gone wrong :(");
+    //     LOG4CPLUS_ERROR(loggerError, "[CLIENT " << clientId << "] rtsp thread not looping... something has gone wrong :(");
+    //     LOG4CPLUS_ERROR(logger, "[CLIENT " << clientId << "] rtsp thread not looping... something has gone wrong :(");
 
-        if (instance->clients[clientId] != NULL && instance->clients[clientId]->state > STRMRECVCLIENT_STATE_CLEANED)
-        {
-            instance->abort(clientId);
+    //     if (instance->clients[clientId] != NULL && instance->clients[clientId]->state > STRMRECVCLIENT_STATE_CLEANED)
+    //     {
+    //         instance->abort(clientId);
 
-            wait = STRMRECVCLIENT_TIMEOUT;
-            LOG4CPLUS_ERROR(loggerError, "[CLIENT " << clientId << "] aborting crazy...");
-            LOG4CPLUS_ERROR(logger, "[CLIENT " << clientId << "] aborting crazy...");
-            //STRMRECVClient::getInstance()->clients[clientId]->state = STRMRECVCLIENT_STATE_ERROR; ;
-            while (wait-- > 0 && instance->clients[clientId]->state == STRMRECVCLIENT_STATE_ABORTING)
-            {
-                printf("INdex -> %d\n", wait);
-                LOG4CPLUS_DEBUG(logger, "[CLIENT " << clientId << "] STATE = " << state_to_string(instance->clients[clientId]->state));
-                LOG4CPLUS_TRACE(logger, "[CLIENT " << clientId << "] wait = " << wait);
-                if(wait <= 0){
-                    STRMRECVClient::getInstance()->clients[clientId]->state = STRMRECVCLIENT_STATE_ERROR;
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            }
-        }
+    //         wait = STRMRECVCLIENT_TIMEOUT;
+    //         LOG4CPLUS_ERROR(loggerError, "[CLIENT " << clientId << "] aborting crazy...");
+    //         LOG4CPLUS_ERROR(logger, "[CLIENT " << clientId << "] aborting crazy...");
+    //         //STRMRECVClient::getInstance()->clients[clientId]->state = STRMRECVCLIENT_STATE_ERROR; ;
+    //         while (wait-- > 0 && instance->clients[clientId]->state == STRMRECVCLIENT_STATE_ABORTING)
+    //         {
+    //             printf("INdex -> %d\n", wait);
+    //             LOG4CPLUS_DEBUG(logger, "[CLIENT " << clientId << "] STATE = " << state_to_string(instance->clients[clientId]->state));
+    //             LOG4CPLUS_TRACE(logger, "[CLIENT " << clientId << "] wait = " << wait);
+    //           if(wait <= 0){
+    //             instance->clients[clientId]->state = STRMRECVCLIENT_STATE_ABORTING;
+    //             strmrecvclient_stop(clientId);
+    //             break;
+    //           }
+    //             std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    //         }
+    //     }
 
-    }
+    // }
 }
 STRMRECVAPI std::string STRMRECVCALL strmrecvclient_get_address(int clientId){
   if(STRMRECVClient::getInstance()->clients[clientId] != NULL)
@@ -184,8 +186,11 @@ STRMRECVAPI int STRMRECVCALL strmrecvclient_stop(int clientId)
     STRMRECVClient *instance = STRMRECVClient::getInstance();
     STRMRECVClientStruct *pClient = instance->clients[clientId];
 
-    if (pClient == NULL || pClient->state <= STRMRECVCLIENT_STATE_CLEANED)
-        return 0;
+    if (pClient == NULL || pClient->state <= STRMRECVCLIENT_STATE_CLEANED){
+      LOG4CPLUS_DEBUG(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "State After Stop" << pClient->state);
+      return 0;
+    }
+        
 
     pClient->state = STRMRECVCLIENT_STATE_STOPPING;
 
