@@ -165,7 +165,7 @@ struct HelloWorldHandler : public RequestHandler {
                         if(data->state == STRMRECVCLIENT_STATE_STOPPING){
                           s++;
                           printf("This is trace for stopping state: %d \n", s);
-                          if(s == 300){
+                          if(s == 500){
                             strmrecvclient_destroy(clientId);
                             std::this_thread::sleep_for(std::chrono::seconds(1));
                             break;

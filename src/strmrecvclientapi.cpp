@@ -200,14 +200,13 @@ STRMRECVAPI int STRMRECVCALL strmrecvclient_stop(int clientId)
     int wait = STRMRECVCLIENT_TIMEOUT;
 
     while (wait-- > 0 && (pClient->state != STRMRECVCLIENT_STATE_CLEANED && pClient->state != STRMRECVCLIENT_STATE_ERROR))
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-
-    if (pClient->state == STRMRECVCLIENT_STATE_CLEANED || pClient->state == STRMRECVCLIENT_STATE_ERROR)
+        std::this_thread::sleep_for(std::chrono::seconds(1));   
+      if (pClient->state == STRMRECVCLIENT_STATE_CLEANED || pClient->state == STRMRECVCLIENT_STATE_ERROR)
         LOG4CPLUS_DEBUG(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "[CLIENT " << clientId << "] thread stopped");
-    else
+      else
         LOG4CPLUS_ERROR(LOG4CPLUS_TEXT(DEFAULT_ERROR_LOGGER), "[CLIENT " << clientId << "] stop FAILED!");
 
-    LOG4CPLUS_DEBUG(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "[CLIENT " << clientId << "] STATE = " << state_to_string(pClient->state));
+      LOG4CPLUS_DEBUG(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "[CLIENT " << clientId << "] STATE = " << state_to_string(pClient->state));
 
     return pClient->state > STRMRECVCLIENT_STATE_CLEANED ? -1 : 0;
 }
