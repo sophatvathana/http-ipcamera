@@ -79,6 +79,7 @@ void startup_thread_loop(STRMRECVClientParameters *parameters)
         LOG4CPLUS_TRACE(logger, "[CLIENT " << clientId << "] wait = " << wait);
         if(wait <= 0){
             instance->clients[clientId]->state = STRMRECVCLIENT_STATE_ABORTING;
+            //instance->clients[clientId]->state = STRMRECVCLIENT_STATE_ERROR;
             strmrecvclient_stop(clientId);
             break;
         }
@@ -199,7 +200,7 @@ STRMRECVAPI int STRMRECVCALL strmrecvclient_stop(int clientId)
     int wait = STRMRECVCLIENT_TIMEOUT;
 
     while (wait-- > 0 && (pClient->state != STRMRECVCLIENT_STATE_CLEANED && pClient->state != STRMRECVCLIENT_STATE_ERROR))
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(2));
 
     if (pClient->state == STRMRECVCLIENT_STATE_CLEANED || pClient->state == STRMRECVCLIENT_STATE_ERROR)
         LOG4CPLUS_DEBUG(LOG4CPLUS_TEXT(DEFAULT_OUTPUT_LOGGER), "[CLIENT " << clientId << "] thread stopped");

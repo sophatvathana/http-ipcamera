@@ -151,7 +151,7 @@ struct HelloWorldHandler : public RequestHandler {
                       // }
                       strmrecvclient_start(clientId, addr, 1);
                       STRMRECVClientData *data = new STRMRECVClientData();
-                      int t = 0;
+                      int t = 0, s = 0;
                       while(1){
                         //strmrecvclient_stop_log();
                         strmrecvclient_log_state(clientId);
@@ -160,6 +160,17 @@ struct HelloWorldHandler : public RequestHandler {
                         if (data->state == STRMRECVCLIENT_STATE_ERROR){
                             strmrecvclient_start(clientId, addr, 1);
                             continue;
+                        }
+
+                        if(data->state == STRMRECVCLIENT_STATE_STOPPING){
+                          s++;
+                          printf("This is trace for stopping state: %d \n", s);
+                          if(s == 300){
+                            strmrecvclient_destroy(clientId);
+                            std::this_thread::sleep_for(std::chrono::seconds(1));
+                            break;
+                          }
+                          continue;
                         }
 
                         if (data->state != STRMRECVCLIENT_STATE_LOOPING){
@@ -172,6 +183,7 @@ struct HelloWorldHandler : public RequestHandler {
 
                             continue;
                         }
+
 
 
        if (strmrecvclient_wait(clientId) != 0)
@@ -199,16 +211,12 @@ struct HelloWorldHandler : public RequestHandler {
         }
          std::this_thread::sleep_for(std::chrono::milliseconds(180));
       }
-         //  rep->flush();
+          
             strmrecvclient_stop(clientId);
-         // strmrecvclient_destroy(clientId);
             delete data;
             strmrecvclient_stop_log();
         });
-          //printf("%d\n", std::this_thread::get_id());
-          //thread_stream.join();
           thread_stream.detach();
-          //exit(0);
 	}
 };
 void runner(){

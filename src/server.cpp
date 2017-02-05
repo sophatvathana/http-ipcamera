@@ -170,11 +170,11 @@ void Server::run(size_t thread_number)
     // for(size_t i = 0; i < thread_number; ++i) 
     // {
         //threads.push_back(
-            std::thread thread_server([this] 
+        std::thread thread_server([this] 
         {
             service_.run();
         });
-            thread_server.join();
+        thread_server.join();
             //);
     //}
     //for(auto&& th : threads)
